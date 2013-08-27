@@ -1,0 +1,46 @@
+{
+  "name": "grunt-newer",
+  "description": "Run grunt tasks with only the source files modified since the previous successful run.",
+  "version": "0.0.0",
+  "homepage": "https://github.com/tschaub/grunt-newer",
+  "author": {
+    "name": "Tim Schaub",
+    "url": "http://tschaub.net/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/tschaub/grunt-newer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tschaub/grunt-newer/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://tschaub.mit-license.org/"
+    }
+  ],
+  "main": "gruntfile.js",
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "scripts": {
+    "test": "grunt"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "grunt": "0.4.1",
+    "grunt-contrib-jshint": "0.6.3",
+    "grunt-cli": "0.1.9"
+  },
+  "peerDependencies": {
+    "grunt": "~0.4.1"
+  },
+  "keywords": [
+    "gruntplugin",
+    "grunt",
+    "newer",
+    "files"
+  ]
+}
