@@ -45,4 +45,7 @@ For example, if you want to run [JSHint](https://npmjs.org/package/grunt-contrib
 
 With the above configuration, running `grunt` will configure your `jshint:all` task to use only files in the `src` config that have been modified since the last successful run of the same task.
 
+To keep track of successful runs, the `newer` task writes files in the `.grunt` directory where it is run.  If you're running the task in a git repository, you'll want to add `.grunt` to your `.gitignore` file.
+
+
 [![Current Status](https://secure.travis-ci.org/tschaub/grunt-newer.png?branch=master)](https://travis-ci.org/tschaub/grunt-newer)
