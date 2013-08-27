@@ -5,42 +5,38 @@ function getStamp(name, target) {
   return path.join('.grunt', name, target, 'timestamp');
 }
 
-
-/** @param {Object} grunt Grunt. */
-module.exports = function(grunt) {
-
-  var newerInfo = 'Run a task with only those source files that have been ' +
-      'modified since the last successful run.';
-  grunt.registerTask('newer', newerInfo, function(name, target) {
-
-    var data = grunt.config.get([name, target]);
-
-    var files = grunt.task.normalizeMultiTaskFiles(data, target);
+function createTask(grunt, any) {
+  return function(name, target) {
+    var config = grunt.config.get([name, target]);
+    var files = grunt.task.normalizeMultiTaskFiles(config, target);
+    var newerFiles;
     var stamp = getStamp(name, target);
-    var some = false;
-    if (grunt.file.exists(stamp)) {
+    var newer = !grunt.file.exists(stamp);
+
+    if (!newer) {
+      // look for files that have been modified since last run
       var previous = fs.statSync(stamp).mtime;
-      files = files.map(function(obj) {
+      newerFiles = files.map(function(obj) {
         var src = obj.src.filter(function(filepath) {
-          var newer = fs.statSync(filepath).mtime > previous;
-          if (newer) {
-            some = true;
+          var modified = fs.statSync(filepath).mtime > previous;
+          if (modified) {
+            newer = true;
           }
-          return newer;
+          return modified;
         });
         return grunt.util._.defaults({src: src}, obj);
       });
-    } else {
-      some = true;
     }
 
-    if (some) {
-      var config = grunt.config.get([name, target]);
-      config.files = files;
-      delete config.src;
-      delete config.dest;
-      grunt.config.set([name, target], config);
-
+    if (newer) {
+      if (!any) {
+        // reconfigure task with only the newer files
+        config.files = newerFiles;
+        delete config.src;
+        delete config.dest;
+        grunt.config.set([name, target], config);
+      }
+      // run the task and create timestamp on success
       var qualified = name + ':' + target;
       grunt.task.run([
         qualified,
@@ -49,12 +45,24 @@ module.exports = function(grunt) {
     } else {
       grunt.log.writeln('No newer files to process.');
     }
+  }
+}
 
-  });
 
-  var tsInfo = 'Internal task that is run after successful task runs.';
-  grunt.registerTask('newer-timestamp', tsInfo, function(name, target) {
-    grunt.file.write(getStamp(name, target), '');
-  });
+/** @param {Object} grunt Grunt. */
+module.exports = function(grunt) {
+
+  grunt.registerTask(
+      'newer', 'Run a task with only those source files that have been ' +
+      'modified since the last successful run.', createTask(grunt));
+
+  grunt.registerTask(
+      'any-newer', 'Run a task with all source files if any have been ' +
+      'modified since the last successful run.', createTask(grunt, true));
+
+  grunt.registerTask(
+      'newer-timestamp', 'Internal task.', function(name, target) {
+        grunt.file.write(getStamp(name, target), '');
+      });
 
 };
