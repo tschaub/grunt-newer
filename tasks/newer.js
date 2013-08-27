@@ -1,16 +1,19 @@
 var fs = require('fs');
 var path = require('path');
 
-function getStamp(name, target) {
-  return path.join('.grunt', name, target, 'timestamp');
+function getStamp(dir, name, target) {
+  return path.join(dir, name, target, 'timestamp');
 }
 
 function createTask(grunt, any) {
   return function(name, target) {
+    var options = this.options({
+      timestamps: '.grunt'
+    });
     var config = grunt.config.get([name, target]);
     var files = grunt.task.normalizeMultiTaskFiles(config, target);
     var newerFiles;
-    var stamp = getStamp(name, target);
+    var stamp = getStamp(options.timestamps, name, target);
     var newer = !grunt.file.exists(stamp);
 
     if (!newer) {
@@ -40,7 +43,7 @@ function createTask(grunt, any) {
       var qualified = name + ':' + target;
       grunt.task.run([
         qualified,
-        'newer-timestamp:' + qualified
+        'newer-timestamp:' + qualified + ':' + options.timestamps
       ]);
     } else {
       grunt.log.writeln('No newer files to process.');
@@ -61,8 +64,8 @@ module.exports = function(grunt) {
       'modified since the last successful run.', createTask(grunt, true));
 
   grunt.registerTask(
-      'newer-timestamp', 'Internal task.', function(name, target) {
-        grunt.file.write(getStamp(name, target), '');
+      'newer-timestamp', 'Internal task.', function(name, target, dir) {
+        grunt.file.write(getStamp(dir, name, target), '');
       });
 
 };
