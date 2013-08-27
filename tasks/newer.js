@@ -65,6 +65,8 @@ module.exports = function(grunt) {
 
   grunt.registerTask(
       'newer-timestamp', 'Internal task.', function(name, target, dir) {
+        // if dir includes a ':', grunt will split it among multiple args
+        dir = Array.prototype.slice.call(arguments, 2).join(':');
         grunt.file.write(getStamp(dir, name, target), '');
       });
 
