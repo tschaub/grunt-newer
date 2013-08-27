@@ -32,6 +32,8 @@ module.exports = function(grunt) {
         });
         return {src: src};
       });
+    } else {
+      some = true;
     }
 
     if (some) {
