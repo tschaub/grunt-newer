@@ -11,10 +11,8 @@ module.exports = function(grunt) {
 
   var newerInfo = 'Run a task with only those source files that have been ' +
       'modified since the last successful run.';
-  grunt.registerTask('newer', newerInfo, function() {
+  grunt.registerTask('newer', newerInfo, function(name, target) {
 
-    var name = Array.prototype.shift.call(arguments);
-    var target = Array.prototype.shift.call(arguments) || '*';
     var data = grunt.config.get([name, target]);
 
     var files = grunt.task.normalizeMultiTaskFiles(data, target);
