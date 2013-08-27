@@ -28,7 +28,7 @@ module.exports = function(grunt) {
           }
           return newer;
         });
-        return {src: src};
+        return grunt.util._.defaults({src: src}, obj);
       });
     } else {
       some = true;
