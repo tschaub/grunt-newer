@@ -1,7 +1,7 @@
 {
   "name": "grunt-newer",
   "description": "Run grunt tasks with only the source files modified since the previous successful run.",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "homepage": "https://github.com/tschaub/grunt-newer",
   "author": {
     "name": "Tim Schaub",
