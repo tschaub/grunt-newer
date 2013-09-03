@@ -7,6 +7,7 @@ function getStamp(dir, name, target) {
 
 function createTask(grunt, any) {
   return function(name, target) {
+    var args = Array.prototype.slice.call(arguments, 2).join(':');
     var options = this.options({
       timestamps: '.grunt'
     });
@@ -14,41 +15,52 @@ function createTask(grunt, any) {
     var files = grunt.task.normalizeMultiTaskFiles(config, target);
     var newerFiles;
     var stamp = getStamp(options.timestamps, name, target);
-    var newer = !grunt.file.exists(stamp);
+    var repeat = grunt.file.exists(stamp);
+    var modified = false;
 
-    if (!newer) {
+    if (repeat) {
       // look for files that have been modified since last run
       var previous = fs.statSync(stamp).mtime;
       newerFiles = files.map(function(obj) {
         var src = obj.src.filter(function(filepath) {
-          var modified = fs.statSync(filepath).mtime > previous;
-          if (modified) {
-            newer = true;
+          var newer = fs.statSync(filepath).mtime > previous;
+          if (newer) {
+            modified = true;
           }
-          return modified;
+          return newer;
         });
         return grunt.util._.defaults({src: src}, obj);
       });
     }
 
-    if (newer) {
-      if (!any) {
-        // reconfigure task with only the newer files
+    /**
+     * Cases:
+     *
+     * 1) First run, process all.
+     * 2) Repeat run, nothing modified, process none.
+     * 3) Repeat run, something modified, any false, process modified.
+     * 4) Repeat run, something modified, any true, process all.
+     */
+
+    var qualified = name + ':' + target;
+    if (repeat && !modified) {
+      // case 2
+      grunt.log.writeln('No newer files to process.');
+    } else {
+      if (repeat && modified && !any) {
+        // case 3
         config.files = newerFiles;
         delete config.src;
         delete config.dest;
         grunt.config.set([name, target], config);
       }
-      // run the task and create timestamp on success
-      var qualified = name + ':' + target;
+      // case 1, 4, or 3
       grunt.task.run([
-        qualified,
+        qualified + (args ? ':' + args : ''),
         'newer-timestamp:' + qualified + ':' + options.timestamps
       ]);
-    } else {
-      grunt.log.writeln('No newer files to process.');
     }
-  }
+  };
 }
 
 

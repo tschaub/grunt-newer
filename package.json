@@ -27,12 +27,12 @@
   "scripts": {
     "test": "grunt"
   },
-  "dependencies": {},
+  "dependencies": {
+    "grunt-contrib-jshint": "~0.6.4"
+  },
   "devDependencies": {
     "grunt": "0.4.1",
-    "grunt-contrib-jshint": "0.6.3",
-    "grunt-cli": "0.1.9",
-    "grunt-contrib-uglify": "~0.2.2"
+    "grunt-cli": "0.1.9"
   },
   "peerDependencies": {
     "grunt": "~0.4.1"
