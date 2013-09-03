@@ -7,11 +7,35 @@ function getStamp(dir, name, target) {
 
 function createTask(grunt, any) {
   return function(name, target) {
+    if (!target) {
+      var tasks = [];
+      Object.keys(grunt.config(name)).forEach(function(target) {
+        if (!/^_|^options$/.test(target)) {
+          tasks.push('newer:' + name + ':' + target);
+        }
+      });
+      return grunt.task.run(tasks);
+    }
     var args = Array.prototype.slice.call(arguments, 2).join(':');
     var options = this.options({
       timestamps: '.grunt'
     });
     var config = grunt.config.get([name, target]);
+    /**
+     * Special handling for watch task.  This is a multitask that expects
+     * the `files` config to be a string or array of string source paths.
+     */
+    var srcFiles = true;
+    if (typeof config.files === 'string') {
+      config.src = [config.files];
+      delete config.files;
+      srcFiles = true;
+    } else if (Array.isArray(config.files) &&
+        typeof config.files[0] === 'string') {
+      config.src = config.files;
+      delete config.files;
+      srcFiles = true;
+    }
     var files = grunt.task.normalizeMultiTaskFiles(config, target);
     var newerFiles;
     var stamp = getStamp(options.timestamps, name, target);
@@ -30,6 +54,15 @@ function createTask(grunt, any) {
           return newer;
         });
         return grunt.util._.defaults({src: src}, obj);
+      });
+    }
+    /**
+     * If we started out with only src files in the files config, transform
+     * the newerFiles array into an array of source files.
+     */
+    if (!srcFiles) {
+      newerFiles = newerFiles.map(function(obj) {
+        return obj.src;
       });
     }
 

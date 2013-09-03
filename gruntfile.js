@@ -12,22 +12,11 @@ module.exports = function(grunt) {
   var fixtures = path.join(__dirname, 'fixtures');
   var src = '**/*.*';
 
-  grunt.initConfig({
+  var gruntfileSrc = 'gruntfile.js';
+  var tasksSrc = 'tasks/**/*.js';
+  var fixturesSrc = 'fixtures/**/*.js';
 
-    jshint: {
-      options: {
-        jshintrc: '.jshintrc'
-      },
-      self: {
-        src: 'gruntfile.js'
-      },
-      tasks: {
-        src: 'tasks/**/*.js'
-      },
-      fixtures: {
-        src: 'fixtures/**/*.js'
-      }
-    },
+  grunt.initConfig({
 
     integration: {
       basic: {
@@ -54,11 +43,35 @@ module.exports = function(grunt) {
           foo: path.join(scratch, src)
         }
       }
+    },
+
+    jshint: {
+      options: {
+        jshintrc: '.jshintrc'
+      },
+      gruntfile: {
+        src: gruntfileSrc
+      },
+      tasks: {
+        src: tasksSrc
+      },
+      fixtures: {
+        src: fixturesSrc
+      }
+    },
+
+    watch: {
+      all: {
+        files: [gruntfileSrc, tasksSrc, fixturesSrc],
+        tasks: ['newer:jshint', 'integration']
+      }
     }
+
   });
 
   grunt.loadTasks('tasks');
   grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-contrib-watch');
 
   /**
    * Integration tests.
