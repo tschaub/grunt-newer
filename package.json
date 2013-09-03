@@ -25,10 +25,10 @@
     "node": ">= 0.8.0"
   },
   "scripts": {
-    "test": "grunt"
+    "test": "grunt --verbose"
   },
   "dependencies": {
-    "grunt-contrib-jshint": "~0.6.4"
+    "grunt-contrib-jshint": "0.6.4"
   },
   "devDependencies": {
     "grunt": "0.4.1",

@@ -41,6 +41,18 @@ module.exports = function(grunt) {
       all: {
         src: path.join(scratch, src),
         modify: path.join(scratch, src)
+      },
+      someFiles: {
+        modify: path.join(scratch, 'two.js'),
+        files: [{
+          src: path.join(scratch, src)
+        }]
+      },
+      filesObj: {
+        modify: path.join(scratch, 'one.js'),
+        files: {
+          foo: path.join(scratch, src)
+        }
       }
     }
   });
