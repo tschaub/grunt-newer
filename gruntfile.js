@@ -8,7 +8,7 @@ var fs = require('fs');
  */
 module.exports = function(grunt) {
 
-  var scratch = path.join('.grunt', 'newer', 'scratch');
+  var scratch = path.join('.cache', 'newer', 'scratch');
   var fixtures = path.join(__dirname, 'fixtures');
   var src = '**/*.*';
 
@@ -91,8 +91,8 @@ module.exports = function(grunt) {
         }
       }
     });
-    if (grunt.file.exists('.grunt')) {
-      grunt.file.delete('.grunt');
+    if (grunt.file.exists('.cache')) {
+      grunt.file.delete('.cache');
     }
   });
 
