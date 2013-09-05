@@ -18,7 +18,7 @@ function createTask(grunt, any) {
     }
     var args = Array.prototype.slice.call(arguments, 2).join(':');
     var options = this.options({
-      timestamps: '.grunt'
+      timestamps: path.join(__dirname, '..', '.cache')
     });
     var config = grunt.config.get([name, target]);
     /**
