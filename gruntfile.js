@@ -42,6 +42,13 @@ module.exports = function(grunt) {
         files: {
           foo: path.join(scratch, src)
         }
+      },
+      timestampsOption: {
+        options: {
+          timestamps: '.custom'
+        },
+        src: path.join(scratch, src),
+        modify: [path.join(scratch, 'one.js')]
       }
     },
 
@@ -84,7 +91,8 @@ module.exports = function(grunt) {
 
   grunt.registerTask('clean', 'Remove all timestamps', function() {
     Object.keys(grunt.config('integration')).forEach(function(target) {
-      var timestamps = grunt.config([target, 'timestamps']);
+      var timestamps = grunt.config(
+          ['integration', target, 'options', 'timestamps']);
       if (timestamps) {
         if (grunt.file.exists(timestamps)) {
           grunt.file.delete(timestamps);
@@ -104,6 +112,10 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('initial', 'Initial run of task', function(name, target) {
+    // configure the 'newer' task with the options for the current target
+    var options = grunt.config([name, target, 'options']);
+    grunt.config(['newer', 'options'], options);
+    // run the target with newer
     grunt.task.run('newer:' + name + ':' + target);
   });
 
@@ -117,6 +129,10 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('repeat', 'Repeat run of task', function(name, target) {
+    // configure the 'newer' task with the options for the current target
+    var options = grunt.config([name, target, 'options']);
+    grunt.config(['newer', 'options'], options);
+    // repeat run of the target with newer
     grunt.task.run('newer:' + name + ':' + target + ':repeat');
   });
 
@@ -149,7 +165,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask('integration-tests', tasks);
 
-  grunt.registerTask('test', ['jshint', 'integration-tests']);
+  grunt.registerTask('test', ['jshint', 'integration-tests', 'clean']);
 
   grunt.registerTask('default', 'test');
 
