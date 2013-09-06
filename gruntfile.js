@@ -9,7 +9,7 @@ var fs = require('fs');
 module.exports = function(grunt) {
 
   var scratch = path.join('.cache', 'newer', 'scratch');
-  var fixtures = path.join(__dirname, 'fixtures');
+  var fixtures = 'fixtures';
   var src = '**/*.*';
 
   var gruntfileSrc = 'gruntfile.js';
@@ -137,8 +137,13 @@ module.exports = function(grunt) {
   var tasks = Object.keys(grunt.config('integration')).map(function(target) {
     var wrapper = 'integration-' + target;
     var actual = 'integration:' + target;
-    grunt.registerTask(wrapper, ['clean', 'setup',
-      'initial:' + actual, 'modify:' + actual, 'repeat:' + actual]);
+    grunt.registerTask(wrapper, [
+      'clean',
+      'setup',
+      'initial:' + actual,
+      'modify:' + actual,
+      'repeat:' + actual
+    ]);
     return wrapper;
   });
 
