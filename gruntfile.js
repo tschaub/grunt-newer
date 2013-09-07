@@ -8,47 +8,18 @@ var fs = require('fs');
  */
 module.exports = function(grunt) {
 
-  var scratch = path.join('.cache', 'newer', 'scratch');
-  var fixtures = 'fixtures';
-  var src = '**/*.*';
-
   var gruntfileSrc = 'gruntfile.js';
   var tasksSrc = 'tasks/**/*.js';
-  var fixturesSrc = 'fixtures/**/*.js';
+  var testSrc = 'test/**/*.spec.js';
 
   grunt.initConfig({
 
-    integration: {
-      basic: {
-        src: path.join(scratch, src),
-        modify: [path.join(scratch, 'one.js')]
-      },
-      none: {
-        src: path.join(scratch, src),
-        modify: []
+    cafemocha: {
+      options: {
+        reporter: 'spec'
       },
       all: {
-        src: path.join(scratch, src),
-        modify: path.join(scratch, src)
-      },
-      someFiles: {
-        modify: path.join(scratch, 'two.js'),
-        files: [{
-          src: path.join(scratch, src)
-        }]
-      },
-      filesObj: {
-        modify: path.join(scratch, 'one.js'),
-        files: {
-          foo: path.join(scratch, src)
-        }
-      },
-      timestampsOption: {
-        options: {
-          timestamps: '.custom'
-        },
-        src: path.join(scratch, src),
-        modify: [path.join(scratch, 'one.js')]
+        src: testSrc
       }
     },
 
@@ -63,14 +34,29 @@ module.exports = function(grunt) {
         src: tasksSrc
       },
       fixtures: {
-        src: fixturesSrc
+        options: {
+          jshintrc: 'test/.jshintrc'
+        },
+        src: testSrc
       }
     },
 
     watch: {
+      tasks: {
+        files: tasksSrc,
+        tasks: ['cafemocha']
+      },
+      tests: {
+        files: testSrc,
+        tasks: ['newer:cafemocha']
+      },
+      fixtures: {
+        files: 'test/fixtures/**/*',
+        tasks: ['cafemocha']
+      },
       all: {
-        files: [gruntfileSrc, tasksSrc, fixturesSrc],
-        tasks: ['newer:jshint', 'integration']
+        files: [gruntfileSrc, tasksSrc, testSrc],
+        tasks: ['newer:jshint']
       }
     }
 
@@ -79,93 +65,9 @@ module.exports = function(grunt) {
   grunt.loadTasks('tasks');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-cafe-mocha');
 
-  /**
-   * Integration tests.
-   *  - clean: remove any timestamps and copied fixtures from previous runs
-   *  - setup: copy fixtures to scratch directory
-   *  - initial: first run of target to simulate fresh setup
-   *  - modify: modify files
-   *  - repeat: subsequent runs of target to simulate repeat runs
-   */
-
-  grunt.registerTask('clean', 'Remove all timestamps', function() {
-    Object.keys(grunt.config('integration')).forEach(function(target) {
-      var timestamps = grunt.config(
-          ['integration', target, 'options', 'timestamps']);
-      if (timestamps) {
-        if (grunt.file.exists(timestamps)) {
-          grunt.file.delete(timestamps);
-        }
-      }
-    });
-    if (grunt.file.exists('.cache')) {
-      grunt.file.delete('.cache');
-    }
-  });
-
-  grunt.registerTask('setup', 'Copy fixtures', function() {
-    grunt.file.expand(path.join(fixtures, src)).forEach(function(absolute) {
-      var relative = path.relative(fixtures, absolute);
-      grunt.file.copy(absolute, path.join(scratch, relative));
-    });
-  });
-
-  grunt.registerTask('initial', 'Initial run of task', function(name, target) {
-    // configure the 'newer' task with the options for the current target
-    var options = grunt.config([name, target, 'options']);
-    grunt.config(['newer', 'options'], options);
-    // run the target with newer
-    grunt.task.run('newer:' + name + ':' + target);
-  });
-
-  grunt.registerTask('modify', 'Modify files', function(name, target) {
-    var modified = grunt.file.expand(grunt.config([name, target, 'modify']));
-    modified.forEach(function(filepath) {
-      var later = new Date(Date.now() + 120 * 1000);
-      fs.utimesSync(filepath, later, later);
-      grunt.verbose.writeln('Updating mtime for file: ' + filepath, later);
-    });
-  });
-
-  grunt.registerTask('repeat', 'Repeat run of task', function(name, target) {
-    // configure the 'newer' task with the options for the current target
-    var options = grunt.config([name, target, 'options']);
-    grunt.config(['newer', 'options'], options);
-    // repeat run of the target with newer
-    grunt.task.run('newer:' + name + ':' + target + ':repeat');
-  });
-
-  grunt.registerMultiTask('integration', function(repeat) {
-    /**
-     * Integration tests make assertions about the files they are provided on
-     * repeat runs.  The `newer` task reconfigures multi-task targets so that
-     * the `filesSrc` array only includes files that were modified since the
-     * last run of the same task.
-     */
-    if (repeat) {
-      var modified = grunt.file.expand(
-          grunt.config([this.name, this.target, 'modify']));
-      assert.deepEqual(this.filesSrc, modified);
-    }
-  });
-
-  var tasks = Object.keys(grunt.config('integration')).map(function(target) {
-    var wrapper = 'integration-' + target;
-    var actual = 'integration:' + target;
-    grunt.registerTask(wrapper, [
-      'clean',
-      'setup',
-      'initial:' + actual,
-      'modify:' + actual,
-      'repeat:' + actual
-    ]);
-    return wrapper;
-  });
-
-  grunt.registerTask('integration-tests', tasks);
-
-  grunt.registerTask('test', ['jshint', 'integration-tests', 'clean']);
+  grunt.registerTask('test', ['newer:jshint', 'cafemocha']);
 
   grunt.registerTask('default', 'test');
 
