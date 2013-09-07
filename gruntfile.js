@@ -11,6 +11,8 @@ module.exports = function(grunt) {
   var gruntfileSrc = 'gruntfile.js';
   var tasksSrc = 'tasks/**/*.js';
   var testSrc = 'test/**/*.spec.js';
+  var fixturesJs = 'test/fixtures/**/*.js';
+  var fixturesAll = 'test/fixtures/**/*';
 
   grunt.initConfig({
 
@@ -33,11 +35,14 @@ module.exports = function(grunt) {
       tasks: {
         src: tasksSrc
       },
-      fixtures: {
+      tests: {
         options: {
           jshintrc: 'test/.jshintrc'
         },
         src: testSrc
+      },
+      fixturesJs: {
+        src: fixturesJs
       }
     },
 
@@ -50,12 +55,12 @@ module.exports = function(grunt) {
         files: testSrc,
         tasks: ['newer:cafemocha']
       },
-      fixtures: {
-        files: 'test/fixtures/**/*',
+      fixturesAll: {
+        files: fixturesAll,
         tasks: ['cafemocha']
       },
-      all: {
-        files: [gruntfileSrc, tasksSrc, testSrc],
+      allJs: {
+        files: [gruntfileSrc, tasksSrc, testSrc, fixturesJs],
         tasks: ['newer:jshint']
       }
     }
