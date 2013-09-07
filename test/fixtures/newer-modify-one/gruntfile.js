@@ -45,10 +45,6 @@ module.exports = function(grunt) {
   grunt.loadTasks('../../../tasks');
   grunt.loadTasks('../../../test/tasks');
 
-  grunt.registerTask('fail', function() {
-    throw new Error('see above');
-  });
-
   grunt.registerTask('default', function() {
 
     grunt.task.run([
