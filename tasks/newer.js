@@ -51,8 +51,21 @@ function createTask(grunt, any) {
       // look for files that have been modified since last run
       var previous = fs.statSync(stamp).mtime;
       newerFiles = files.map(function(obj) {
+        var time;
+        /**
+         * It is possible that there is a dest file that has been created
+         * more recently than the last successful run.  This would happen if
+         * a target with multiple dest files failed before all dest files were
+         * created.  In this case, we don't need to re-run src files that map
+         * to dest files that were already created.
+         */
+        if (obj.dest && grunt.file.exists(obj.dest)) {
+          time = Math.max(fs.statSync(obj.dest).mtime, previous);
+        } else {
+          time = previous;
+        }
         var src = obj.src.filter(function(filepath) {
-          var newer = fs.statSync(filepath).mtime > previous;
+          var newer = fs.statSync(filepath).mtime > time;
           if (newer) {
             modified = true;
           }
