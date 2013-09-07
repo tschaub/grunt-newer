@@ -16,10 +16,22 @@ module.exports = function(grunt) {
     },
     modified: {
       one: {
-        src: 'src/one.js'
+        files: [{
+          expand: true,
+          cwd: 'src/',
+          src: 'one.coffee',
+          dest: 'dest/',
+          ext: '.js'
+        }]
       },
       all: {
-        src: 'src/**/*.js'
+        files: [{
+          expand: true,
+          cwd: 'src/',
+          src: '**/*.coffee',
+          dest: 'dest/',
+          ext: '.js'
+        }]
       },
       none: {
         src: []
@@ -27,7 +39,13 @@ module.exports = function(grunt) {
     },
     log: {
       all: {
-        src: 'src/**/*.js',
+        files: [{
+          expand: true,
+          cwd: 'src/',
+          src: '**/*.coffee',
+          dest: 'dest/',
+          ext: '.js'
+        }],
         getLog: function() {
           return log;
         }
@@ -48,7 +66,7 @@ module.exports = function(grunt) {
   grunt.registerTask('default', function() {
 
     grunt.task.run([
-      // run the assert task with newer, expect all files
+      // run the log task with newer, expect all files
       'newer:log',
       'assert:that:modified:all',
 

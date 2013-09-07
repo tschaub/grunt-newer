@@ -15,30 +15,42 @@ function prune(obj) {
 }
 
 
+/**
+ * Remove files config objects with no src files.
+ * @param {Array} files Array of files config objects.
+ * @return {Array} Filtered array of files config objects.
+ */
+function filter(files) {
+  return files.map(prune).filter(function(obj) {
+    return obj.src && obj.src.length > 0;
+  });
+}
+
+
 /** @param {Object} grunt Grunt. */
 module.exports = function(grunt) {
 
   grunt.registerMultiTask('assert', function(name, target) {
     var config = grunt.config([name, target]);
-    var expected = grunt.task.normalizeMultiTaskFiles(config, target)
-        .map(prune);
+    var expected = filter(grunt.task.normalizeMultiTaskFiles(config, target));
     var log = this.data.getLog();
 
-    if (expected.length === 0 || expected[0].src.length === 0) {
+    if (expected.length === 0) {
       assert.equal(log.length, 0, 'No log entries');
     } else {
       assert.equal(log.length, 1, 'One log entry');
-      var actual = log[0].map(prune);
+      var actual = log[0];
       assert.deepEqual(actual, expected);
       log.length = 0;
     }
-
   });
 
 
   grunt.registerMultiTask('log', function() {
-    var log = this.data.getLog();
-    log.push(this.files.map(prune));
+    var files = filter(this.files);
+    if (files.length > 0) {
+      this.data.getLog().push(files);
+    }
   });
 
 
