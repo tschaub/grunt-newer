@@ -25,14 +25,18 @@
     "node": ">= 0.8.0"
   },
   "scripts": {
-    "test": "grunt --stack --verbose jshint test",
+    "test": "grunt test",
     "start": "grunt watch"
   },
   "devDependencies": {
     "grunt": "0.4.1",
     "grunt-cli": "0.1.9",
     "grunt-contrib-watch": "0.5.3",
-    "grunt-contrib-jshint": "0.6.4"
+    "grunt-contrib-jshint": "0.6.4",
+    "chai": "1.7.2",
+    "grunt-cafe-mocha": "0.1.8",
+    "wrench": "1.5.1",
+    "tmp": "0.0.21"
   },
   "peerDependencies": {
     "grunt": "~0.4.1"

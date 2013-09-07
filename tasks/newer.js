@@ -1,9 +1,11 @@
 var fs = require('fs');
 var path = require('path');
 
+
 function getStamp(dir, name, target) {
   return path.join(dir, name, target, 'timestamp');
 }
+
 
 function createTask(grunt, any) {
   return function(name, target) {
@@ -21,6 +23,7 @@ function createTask(grunt, any) {
       timestamps: path.join(__dirname, '..', '.cache')
     });
     var config = grunt.config.get([name, target]);
+
     /**
      * Special handling for watch task.  This is a multitask that expects
      * the `files` config to be a string or array of string source paths.
@@ -29,14 +32,16 @@ function createTask(grunt, any) {
     if (typeof config.files === 'string') {
       config.src = [config.files];
       delete config.files;
-      srcFiles = true;
+      srcFiles = false;
     } else if (Array.isArray(config.files) &&
         typeof config.files[0] === 'string') {
       config.src = config.files;
       delete config.files;
-      srcFiles = true;
+      srcFiles = false;
     }
+
     var files = grunt.task.normalizeMultiTaskFiles(config, target);
+
     var newerFiles;
     var stamp = getStamp(options.timestamps, name, target);
     var repeat = grunt.file.exists(stamp);
@@ -53,9 +58,10 @@ function createTask(grunt, any) {
           }
           return newer;
         });
-        return grunt.util._.defaults({src: src}, obj);
+        return {src: src, dest: obj.dest};
       });
     }
+
     /**
      * If we started out with only src files in the files config, transform
      * the newerFiles array into an array of source files.
@@ -87,7 +93,7 @@ function createTask(grunt, any) {
         delete config.dest;
         grunt.config.set([name, target], config);
       }
-      // case 1, 4, or 3
+      // case 1, 3 or 4
       grunt.task.run([
         qualified + (args ? ':' + args : ''),
         'newer-timestamp:' + qualified + ':' + options.timestamps
