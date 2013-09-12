@@ -1,8 +1,9 @@
 var fs = require('fs');
 var path = require('path');
 
+var async = require('async');
 
-function getStamp(dir, name, target) {
+function getStampPath(dir, name, target) {
   return path.join(dir, name, target, 'timestamp');
 }
 
@@ -24,6 +25,55 @@ function pluckConfig(id) {
   return config;
 }
 
+function filterSrcByTime(srcFiles, time, callback) {
+  async.map(srcFiles, fs.stat, function(err, stats) {
+    if (err) {
+      return callback(err);
+    }
+    callback(null, srcFiles.filter(function(filename, index) {
+      return stats[index].mtime > time;
+    }));
+  });
+}
+
+function filterFilesByTime(files, previous, callback) {
+  async.map(files, function(obj, done) {
+    var time;
+    /**
+     * It is possible that there is a dest file that has been created
+     * more recently than the last successful run.  This would happen if
+     * a target with multiple dest files failed before all dest files were
+     * created.  In this case, we don't need to re-run src files that map
+     * to dest files that were already created.
+     */
+    if (obj.dest) {
+      if (fs.existsSync(obj.dest)) {
+        time = Math.max(fs.statSync(obj.dest).mtime, previous);
+      } else {
+        // dest file may have been cleaned
+        return done(null, obj);
+      }
+    } else {
+      time = previous;
+    }
+
+    filterSrcByTime(obj.src, time, function(err, src) {
+      if (err) {
+        return done(err);
+      }
+      done(null, {src: src, dest: obj.dest});
+    });
+
+  }, function(err, results) {
+    if (err) {
+      return callback(err);
+    }
+    // get rid of file config objects with no src files
+    callback(null, results.filter(function(obj) {
+      return obj.src && obj.src.length > 0;
+    }));
+  });
+}
 
 function createTask(grunt, any) {
   return function(name, target) {
@@ -61,95 +111,67 @@ function createTask(grunt, any) {
       srcFiles = false;
     }
 
-    var files = grunt.task.normalizeMultiTaskFiles(config, target);
-
-    var newerFiles;
-    var stamp = getStamp(options.timestamps, name, target);
-    var repeat = grunt.file.exists(stamp);
-    var modified = false;
-
-    if (repeat) {
-      // look for files that have been modified since last run
-      var previous = fs.statSync(stamp).mtime;
-      newerFiles = files.map(function(obj) {
-        var time;
-        /**
-         * It is possible that there is a dest file that has been created
-         * more recently than the last successful run.  This would happen if
-         * a target with multiple dest files failed before all dest files were
-         * created.  In this case, we don't need to re-run src files that map
-         * to dest files that were already created.
-         */
-        var existsDest = obj.dest && grunt.file.exists(obj.dest);
-        if (existsDest) {
-          time = Math.max(fs.statSync(obj.dest).mtime, previous);
-        } else {
-          if (obj.dest) {
-            // The dest file may have been removed.  Run with all src files.
-            time = 0;
-          } else {
-            time = previous;
-          }
-        }
-        var src = obj.src.filter(function(filepath) {
-          var newer = fs.statSync(filepath).mtime > time;
-          if (newer) {
-            modified = true;
-          }
-          return newer;
-        });
-
-        if (!existsDest && prefix === 'any-newer') {
-          modified = true;
-        }
-        return {src: src, dest: obj.dest};
-      }).filter(function(obj) {
-        return obj.src && obj.src.length > 0;
-      });
-    }
-
-    /**
-     * If we started out with only src files in the files config, transform
-     * the newerFiles array into an array of source files.
-     */
-    if (!srcFiles) {
-      newerFiles = newerFiles.map(function(obj) {
-        return obj.src;
-      });
-    }
-
-    /**
-     * Cases:
-     *
-     * 1) First run, process all.
-     * 2) Repeat run, nothing modified, process none.
-     * 3) Repeat run, something modified, any false, process modified.
-     * 4) Repeat run, something modified, any true, process all.
-     */
-
     var qualified = name + ':' + target;
-    if (repeat && !modified) {
-      // case 2
-      grunt.log.writeln('No newer files to process.');
-    } else {
-      if (repeat && modified && !any) {
-        // case 3
+    var stamp = getStampPath(options.timestamps, name, target);
+    var repeat = grunt.file.exists(stamp);
+
+    if (!repeat) {
+      /**
+       * This task has never succeeded before.  Process everything.  This is
+       * less efficient than it could be for cases where some dest files were
+       * created in previous runs that failed, but it makes things easier.
+       */
+      grunt.task.run([
+        qualified + (args ? ':' + args : ''),
+        'newer-timestamp:' + qualified + ':' + options.timestamps
+      ]);
+      return;
+    }
+
+    // This task has succeeded before.  Filter src files.
+
+    var done = this.async();
+
+    var previous = fs.statSync(stamp).mtime;
+    var files = grunt.task.normalizeMultiTaskFiles(config, target);
+    filterFilesByTime(files, previous, function(err, newerFiles) {
+      if (err) {
+        return done(err);
+      } else if (newerFiles.length === 0) {
+        grunt.log.writeln('No newer files to process.');
+        return done();
+      }
+
+      var tasks = [
+        qualified + (args ? ':' + args : ''),
+        'newer-timestamp:' + qualified + ':' + options.timestamps
+      ];
+
+      if (!any) {
+        /**
+         * If we started out with only src files in the files config,
+         * transform the newerFiles array into an array of source files.
+         */
+        if (!srcFiles) {
+          newerFiles = newerFiles.map(function(obj) {
+            return obj.src;
+          });
+        }
+
+        // configure target with only newer files
         config.files = newerFiles;
         delete config.src;
         delete config.dest;
         grunt.config.set([name, target], config);
-      }
-      // case 1, 3 or 4
-      tasks = [
-        qualified + (args ? ':' + args : ''),
-        'newer-timestamp:' + qualified + ':' + options.timestamps
-      ];
-      // if we modified the config (case 3), reset it to the original after
-      if (repeat && modified && !any) {
         tasks.push('newer-reconfigure:' + qualified + ':' + id);
       }
+
+      // run the task, track the time, and (potentially) reconfigure
       grunt.task.run(tasks);
-    }
+
+      done();
+    });
+
   };
 }
 
@@ -169,7 +191,7 @@ module.exports = function(grunt) {
       'newer-timestamp', 'Internal task.', function(name, target, dir) {
         // if dir includes a ':', grunt will split it among multiple args
         dir = Array.prototype.slice.call(arguments, 2).join(':');
-        grunt.file.write(getStamp(dir, name, target), '');
+        grunt.file.write(getStampPath(dir, name, target), '');
       });
 
   grunt.registerTask(
