@@ -9,7 +9,7 @@ var fs = require('fs');
 module.exports = function(grunt) {
 
   var gruntfileSrc = 'gruntfile.js';
-  var tasksSrc = 'tasks/**/*.js';
+  var tasksSrc = ['tasks/**/*.js', 'lib/**/*.js'];
   var testSrc = 'test/**/*.spec.js';
   var fixturesJs = 'test/fixtures/**/*.js';
   var fixturesAll = 'test/fixtures/**/*';

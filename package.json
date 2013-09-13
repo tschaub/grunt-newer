@@ -47,5 +47,8 @@
     "grunt",
     "newer",
     "files"
-  ]
+  ],
+  "dependencies": {
+    "async": "0.2.9"
+  }
 }
