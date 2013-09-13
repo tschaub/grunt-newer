@@ -72,6 +72,8 @@ function createTask(grunt, any) {
           return newer;
         });
         return {src: src, dest: obj.dest};
+      }).filter(function(obj) {
+        return obj.src && obj.src.length > 0;
       });
     }
 
