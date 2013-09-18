@@ -13,7 +13,8 @@ function createTask(grunt, any) {
       var tasks = [];
       Object.keys(grunt.config(name)).forEach(function(target) {
         if (!/^_|^options$/.test(target)) {
-          tasks.push('newer:' + name + ':' + target);
+          var anyPrefix = any ? 'any-' : '';
+          tasks.push(anyPrefix + 'newer:' + name + ':' + target);
         }
       });
       return grunt.task.run(tasks);
