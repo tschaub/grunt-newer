@@ -11,10 +11,10 @@ function createTask(grunt, any) {
   return function(name, target) {
     if (!target) {
       var tasks = [];
+      var prefix = this.name;
       Object.keys(grunt.config(name)).forEach(function(target) {
         if (!/^_|^options$/.test(target)) {
-          var anyPrefix = any ? 'any-' : '';
-          tasks.push(anyPrefix + 'newer:' + name + ':' + target);
+          tasks.push(prefix + ':' + name + ':' + target);
         }
       });
       return grunt.task.run(tasks);
