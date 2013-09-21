@@ -6,11 +6,29 @@ function getStamp(dir, name, target) {
   return path.join(dir, name, target, 'timestamp');
 }
 
+var counter = 0;
+var configCache = {};
+
+function cacheConfig(config) {
+  ++counter;
+  configCache[counter] = config;
+  return counter;
+}
+
+function pluckConfig(id) {
+  if (!configCache.hasOwnProperty(id)) {
+    throw new Error('Failed to find id in cache');
+  }
+  var config = configCache[id];
+  delete configCache[id];
+  return config;
+}
+
 
 function createTask(grunt, any) {
   return function(name, target) {
+    var tasks = [];
     if (!target) {
-      var tasks = [];
       var prefix = this.name;
       Object.keys(grunt.config(name)).forEach(function(target) {
         if (!/^_|^options$/.test(target)) {
@@ -24,6 +42,8 @@ function createTask(grunt, any) {
       timestamps: path.join(__dirname, '..', '.cache')
     });
     var config = grunt.config.get([name, target]);
+    var id = cacheConfig(config);
+    config = grunt.util._.clone(config);
 
     /**
      * Special handling for watch task.  This is a multitask that expects
@@ -110,10 +130,15 @@ function createTask(grunt, any) {
         grunt.config.set([name, target], config);
       }
       // case 1, 3 or 4
-      grunt.task.run([
+      tasks = [
         qualified + (args ? ':' + args : ''),
         'newer-timestamp:' + qualified + ':' + options.timestamps
-      ]);
+      ];
+      // if we modified the config (case 3), reset it to the original after
+      if (repeat && modified && !any) {
+        tasks.push('newer-reconfigure:' + qualified + ':' + id);
+      }
+      grunt.task.run(tasks);
     }
   };
 }
@@ -135,6 +160,11 @@ module.exports = function(grunt) {
         // if dir includes a ':', grunt will split it among multiple args
         dir = Array.prototype.slice.call(arguments, 2).join(':');
         grunt.file.write(getStamp(dir, name, target), '');
+      });
+
+  grunt.registerTask(
+      'newer-reconfigure', 'Internal task.', function(name, target, id) {
+        grunt.config.set([name, target], pluckConfig(id));
       });
 
 };
