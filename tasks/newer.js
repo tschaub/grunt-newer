@@ -80,18 +80,25 @@ function createTask(grunt, any) {
          * created.  In this case, we don't need to re-run src files that map
          * to dest files that were already created.
          */
-        if (obj.dest && grunt.file.exists(obj.dest)) {
-          time = Math.max(fs.statSync(obj.dest).mtime, previous);
-        } else {
-          time = previous;
+        var existsDest = grunt.file.exists(obj.dest);
+        if (!existsDest && prefix === 'any-newer') {
+          modified = true;
         }
-        var src = obj.src.filter(function(filepath) {
-          var newer = fs.statSync(filepath).mtime > time;
-          if (newer) {
-            modified = true;
+        else {
+          if (obj.dest && existsDest) {
+            time = Math.max(fs.statSync(obj.dest).mtime, previous);
+          } else {
+            time = previous;
           }
-          return newer;
-        });
+          var src = obj.src.filter(function(filepath) {
+            var newer = fs.statSync(filepath).mtime > time;
+            if (newer) {
+              modified = true;
+            }
+            return newer;
+          });  
+        }
+        
         return {src: src, dest: obj.dest};
       }).filter(function(obj) {
         return obj.src && obj.src.length > 0;
