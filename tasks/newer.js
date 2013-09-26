@@ -28,8 +28,8 @@ function pluckConfig(id) {
 function createTask(grunt, any) {
   return function(name, target) {
     var tasks = [];
+    var prefix = this.name;
     if (!target) {
-      var prefix = this.name;
       Object.keys(grunt.config(name)).forEach(function(target) {
         if (!/^_|^options$/.test(target)) {
           tasks.push(prefix + ':' + name + ':' + target);
@@ -80,10 +80,16 @@ function createTask(grunt, any) {
          * created.  In this case, we don't need to re-run src files that map
          * to dest files that were already created.
          */
-        if (obj.dest && grunt.file.exists(obj.dest)) {
+        var existsDest = obj.dest && grunt.file.exists(obj.dest);
+        if (existsDest) {
           time = Math.max(fs.statSync(obj.dest).mtime, previous);
         } else {
-          time = previous;
+          if (obj.dest) {
+            // The dest file may have been removed.  Run with all src files.
+            time = 0;
+          } else {
+            time = previous;
+          }
         }
         var src = obj.src.filter(function(filepath) {
           var newer = fs.statSync(filepath).mtime > time;
@@ -92,6 +98,10 @@ function createTask(grunt, any) {
           }
           return newer;
         });
+
+        if (!existsDest && prefix === 'any-newer') {
+          modified = true;
+        }
         return {src: src, dest: obj.dest};
       }).filter(function(obj) {
         return obj.src && obj.src.length > 0;

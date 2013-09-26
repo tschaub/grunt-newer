@@ -51,6 +51,12 @@ module.exports = function(grunt) {
     if (files.length > 0) {
       this.data.getLog().push(files);
     }
+    // create all dest files
+    files.forEach(function(obj) {
+      if (obj.dest) {
+        grunt.file.write(obj.dest, '');
+      }
+    });
   });
 
 

@@ -36,7 +36,8 @@
     "chai": "1.7.2",
     "grunt-cafe-mocha": "0.1.8",
     "wrench": "1.5.1",
-    "tmp": "0.0.21"
+    "tmp": "0.0.21",
+    "grunt-contrib-clean": "0.5.0"
   },
   "peerDependencies": {
     "grunt": "~0.4.1"
