@@ -28,8 +28,9 @@ function pluckConfig(id) {
 function createTask(grunt, any) {
   return function(name, target) {
     var tasks = [];
+    var prefix = this.name;
     if (!target) {
-      var prefix = this.name;
+      
       Object.keys(grunt.config(name)).forEach(function(target) {
         if (!/^_|^options$/.test(target)) {
           tasks.push(prefix + ':' + name + ':' + target);
@@ -80,23 +81,35 @@ function createTask(grunt, any) {
          * created.  In this case, we don't need to re-run src files that map
          * to dest files that were already created.
          */
-        var existsDest = grunt.file.exists(obj.dest);
+        // when dest is undefined the task fails...
+        // better verify first
+        var existsDest = obj.dest && grunt.file.exists(obj.dest);
+        
+        if (obj.dest && existsDest) {
+          time = Math.max(fs.statSync(obj.dest).mtime, previous);
+        } else {
+          // if the destination file is set, but does not exists
+          // we do want to run the task.
+          // This fixes a bug where the clean task delete the generated files
+          // and since there are not new files the task is not run 
+          // which let the build in an inconsistent state
+          if (obj.dest) {
+            modified = true
+          }
+          else {
+            time = previous;  
+          }
+        }
+        var src = obj.src.filter(function(filepath) {
+          var newer = fs.statSync(filepath).mtime > time;
+          if (newer) {
+            modified = true;
+          }
+          return newer;
+        });  
+
         if (!existsDest && prefix === 'any-newer') {
           modified = true;
-        }
-        else {
-          if (obj.dest && existsDest) {
-            time = Math.max(fs.statSync(obj.dest).mtime, previous);
-          } else {
-            time = previous;
-          }
-          var src = obj.src.filter(function(filepath) {
-            var newer = fs.statSync(filepath).mtime > time;
-            if (newer) {
-              modified = true;
-            }
-            return newer;
-          });  
         }
         
         return {src: src, dest: obj.dest};
