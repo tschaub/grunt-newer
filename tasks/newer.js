@@ -80,21 +80,14 @@ function createTask(grunt, any) {
          * created.  In this case, we don't need to re-run src files that map
          * to dest files that were already created.
          */
-        // when dest is undefined the task fails...
-        // better verify first
         var existsDest = obj.dest && grunt.file.exists(obj.dest);
-        if (obj.dest && existsDest) {
+        if (existsDest) {
           time = Math.max(fs.statSync(obj.dest).mtime, previous);
         } else {
-          // if the destination file is set, but does not exists
-          // we do want to run the task.
-          // This fixes a bug where the clean task delete the generated files
-          // and since there are not new files the task is not run
-          // which let the build in an inconsistent state
           if (obj.dest) {
-            modified = true;
-          }
-          else {
+            // The dest file may have been removed.  Run with all src files.
+            time = 0;
+          } else {
             time = previous;
           }
         }
