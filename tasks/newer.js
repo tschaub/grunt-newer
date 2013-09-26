@@ -30,7 +30,6 @@ function createTask(grunt, any) {
     var tasks = [];
     var prefix = this.name;
     if (!target) {
-      
       Object.keys(grunt.config(name)).forEach(function(target) {
         if (!/^_|^options$/.test(target)) {
           tasks.push(prefix + ':' + name + ':' + target);
@@ -84,20 +83,19 @@ function createTask(grunt, any) {
         // when dest is undefined the task fails...
         // better verify first
         var existsDest = obj.dest && grunt.file.exists(obj.dest);
-        
         if (obj.dest && existsDest) {
           time = Math.max(fs.statSync(obj.dest).mtime, previous);
         } else {
           // if the destination file is set, but does not exists
           // we do want to run the task.
           // This fixes a bug where the clean task delete the generated files
-          // and since there are not new files the task is not run 
+          // and since there are not new files the task is not run
           // which let the build in an inconsistent state
           if (obj.dest) {
-            modified = true
+            modified = true;
           }
           else {
-            time = previous;  
+            time = previous;
           }
         }
         var src = obj.src.filter(function(filepath) {
@@ -106,12 +104,11 @@ function createTask(grunt, any) {
             modified = true;
           }
           return newer;
-        });  
+        });
 
         if (!existsDest && prefix === 'any-newer') {
           modified = true;
         }
-        
         return {src: src, dest: obj.dest};
       }).filter(function(obj) {
         return obj.src && obj.src.length > 0;
