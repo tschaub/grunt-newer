@@ -1,7 +1,7 @@
 {
   "name": "grunt-newer",
   "description": "Run Grunt tasks with only those source files modified since the last successful run.",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "homepage": "https://github.com/tschaub/grunt-newer",
   "author": {
     "name": "Tim Schaub",
