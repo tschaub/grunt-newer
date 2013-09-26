@@ -9,7 +9,7 @@ describe(name, function() {
   var fixture;
 
   it('runs the default task (see ' + gruntfile + ')', function(done) {
-    this.timeout(2000);
+    this.timeout(6000);
     helper.buildFixture(name, function(error, dir) {
       fixture = dir;
       done(error);
