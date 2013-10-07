@@ -37,8 +37,14 @@ function createTask(grunt, any) {
     }
     var args = Array.prototype.slice.call(arguments, 2).join(':');
     var options = this.options({
-      timestamps: path.join(__dirname, '..', '.cache')
+      cache: path.join(__dirname, '..', '.cache')
     });
+
+    // support deprecated timestamps option
+    if (options.timestamps) {
+      options.cache = options.timestamps;
+    }
+
     var config = grunt.config.get([name, target]);
     var id = cacheConfig(config);
     config = grunt.util._.clone(config);
@@ -60,7 +66,7 @@ function createTask(grunt, any) {
     }
 
     var qualified = name + ':' + target;
-    var stamp = util.getStampPath(options.timestamps, name, target);
+    var stamp = util.getStampPath(options.cache, name, target);
     var repeat = grunt.file.exists(stamp);
 
     if (!repeat) {
@@ -71,7 +77,7 @@ function createTask(grunt, any) {
        */
       grunt.task.run([
         qualified + (args ? ':' + args : ''),
-        'newer-timestamp:' + qualified + ':' + options.timestamps
+        'newer-timestamp:' + qualified + ':' + options.cache
       ]);
       return;
     }
@@ -92,7 +98,7 @@ function createTask(grunt, any) {
 
       var tasks = [
         qualified + (args ? ':' + args : ''),
-        'newer-timestamp:' + qualified + ':' + options.timestamps
+        'newer-timestamp:' + qualified + ':' + options.cache
       ];
 
       if (!any) {
