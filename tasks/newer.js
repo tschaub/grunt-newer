@@ -76,7 +76,7 @@ function createTask(grunt, any) {
        */
       grunt.task.run([
         qualified + (args ? ':' + args : ''),
-        'newer-timestamp:' + qualified + ':' + options.cache
+        'newer-postrun:' + qualified + ':-1:' + options.cache
       ]);
       return;
     }
@@ -95,10 +95,7 @@ function createTask(grunt, any) {
         return done();
       }
 
-      var tasks = [
-        qualified + (args ? ':' + args : ''),
-        'newer-timestamp:' + qualified + ':' + options.cache
-      ];
+      var id = '-1'; // special id to indicate no cached config
 
       if (!any) {
         /**
@@ -116,11 +113,15 @@ function createTask(grunt, any) {
         delete config.src;
         delete config.dest;
         grunt.config.set([name, target], config);
-        var id = cacheConfig(originalConfig);
-        tasks.push('newer-reconfigure:' + qualified + ':' + id);
+        // because we modified the task config, cache the original
+        id = cacheConfig(originalConfig);
       }
 
-      // run the task, track the time, and (potentially) reconfigure
+      // run the task, and attend to postrun tasks
+      var tasks = [
+        qualified + (args ? ':' + args : ''),
+        'newer-postrun:' + qualified + ':' + id + ':' + options.cache
+      ];
       grunt.task.run(tasks);
 
       done();
@@ -142,15 +143,17 @@ module.exports = function(grunt) {
       'modified since the last successful run.', createTask(grunt, true));
 
   grunt.registerTask(
-      'newer-timestamp', 'Internal task.', function(name, target, dir) {
-        // if dir includes a ':', grunt will split it among multiple args
-        dir = Array.prototype.slice.call(arguments, 2).join(':');
-        grunt.file.write(util.getStampPath(dir, name, target), '');
-      });
+      'newer-postrun', 'Internal task.', function(name, target, id, dir) {
 
-  grunt.registerTask(
-      'newer-reconfigure', 'Internal task.', function(name, target, id) {
-        grunt.config.set([name, target], pluckConfig(id));
+        // if dir includes a ':', grunt will split it among multiple args
+        dir = Array.prototype.slice.call(arguments, 3).join(':');
+        grunt.file.write(util.getStampPath(dir, name, target), '');
+
+        // reconfigure task if modified config was set
+        if (id !== '-1') {
+          grunt.config.set([name, target], pluckConfig(id));
+        }
+
       });
 
 };
