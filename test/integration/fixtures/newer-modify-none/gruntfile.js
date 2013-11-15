@@ -39,7 +39,7 @@ module.exports = function(grunt) {
   });
 
   grunt.loadTasks('../../../tasks');
-  grunt.loadTasks('../../../test/tasks');
+  grunt.loadTasks('../../../test/integration/tasks');
 
   grunt.registerTask('default', function() {
 

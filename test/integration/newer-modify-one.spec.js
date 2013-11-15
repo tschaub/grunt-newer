@@ -1,8 +1,8 @@
 var path = require('path');
 
-var helper = require('./helper');
+var helper = require('../helper');
 
-var name = 'newer-clean-dest';
+var name = 'newer-modify-one';
 var gruntfile = path.join(name, 'gruntfile.js');
 
 describe(name, function() {

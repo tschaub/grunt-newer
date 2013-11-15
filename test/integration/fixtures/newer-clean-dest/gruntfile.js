@@ -14,6 +14,10 @@ module.exports = function(grunt) {
         timestamps: path.join(__dirname, '.cache')
       }
     },
+    clean: {
+      one: 'dest/one.js',
+      all: 'dest'
+    },
     modified: {
       one: {
         files: [{
@@ -60,8 +64,10 @@ module.exports = function(grunt) {
     }
   });
 
+  grunt.loadTasks('../../../node_modules/grunt-contrib-clean/tasks');
+
   grunt.loadTasks('../../../tasks');
-  grunt.loadTasks('../../../test/tasks');
+  grunt.loadTasks('../../../test/integration/tasks');
 
   grunt.registerTask('default', function() {
 
@@ -85,7 +91,17 @@ module.exports = function(grunt) {
 
       // modify nothing, expect no files
       'newer:log',
-      'assert:that:modified:none'
+      'assert:that:modified:none',
+
+      // remove one dest file, expect one file
+      'clean:one',
+      'newer:log',
+      'assert:that:modified:one',
+
+      // remove all dest file, expect all
+      'clean:all',
+      'newer:log',
+      'assert:that:modified:all'
 
     ]);
 

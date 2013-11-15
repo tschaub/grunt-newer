@@ -6,7 +6,7 @@ var chai = require('chai');
 var tmp = require('tmp');
 var wrench = require('wrench');
 
-var fixtures = path.join(__dirname, 'fixtures');
+var fixtures = path.join(__dirname, 'integration', 'fixtures');
 var tmpDir = 'tmp';
 
 

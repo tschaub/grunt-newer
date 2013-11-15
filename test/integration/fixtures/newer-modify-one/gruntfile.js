@@ -14,28 +14,12 @@ module.exports = function(grunt) {
         timestamps: path.join(__dirname, '.cache')
       }
     },
-    clean: {
-      one: 'dest/one.js',
-      all: 'dest'
-    },
     modified: {
       one: {
-        files: [{
-          expand: true,
-          cwd: 'src/',
-          src: 'one.coffee',
-          dest: 'dest/',
-          ext: '.js'
-        }]
+        src: 'src/one.js'
       },
       all: {
-        files: [{
-          expand: true,
-          cwd: 'src/',
-          src: '**/*.coffee',
-          dest: 'dest/',
-          ext: '.js'
-        }]
+        src: 'src/**/*.js'
       },
       none: {
         src: []
@@ -43,13 +27,7 @@ module.exports = function(grunt) {
     },
     log: {
       all: {
-        files: [{
-          expand: true,
-          cwd: 'src/',
-          src: '**/*.coffee',
-          dest: 'dest/',
-          ext: '.js'
-        }],
+        src: 'src/**/*.js',
         getLog: function() {
           return log;
         }
@@ -64,15 +42,13 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.loadTasks('../../../node_modules/grunt-contrib-clean/tasks');
-
   grunt.loadTasks('../../../tasks');
-  grunt.loadTasks('../../../test/tasks');
+  grunt.loadTasks('../../../test/integration/tasks');
 
   grunt.registerTask('default', function() {
 
     grunt.task.run([
-      // run the log task with newer, expect all files
+      // run the assert task with newer, expect all files
       'newer:log',
       'assert:that:modified:all',
 
@@ -91,17 +67,7 @@ module.exports = function(grunt) {
 
       // modify nothing, expect no files
       'newer:log',
-      'assert:that:modified:none',
-
-      // remove one dest file, expect one file
-      'clean:one',
-      'newer:log',
-      'assert:that:modified:one',
-
-      // remove all dest file, expect all
-      'clean:all',
-      'newer:log',
-      'assert:that:modified:all'
+      'assert:that:modified:none'
 
     ]);
 

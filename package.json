@@ -26,7 +26,7 @@
   },
   "scripts": {
     "test": "grunt test",
-    "start": "grunt watch"
+    "start": "grunt test watch"
   },
   "devDependencies": {
     "grunt": "0.4.1",
@@ -47,5 +47,8 @@
     "grunt",
     "newer",
     "files"
-  ]
+  ],
+  "dependencies": {
+    "async": "0.2.9"
+  }
 }

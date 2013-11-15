@@ -101,19 +101,19 @@ With the above configuration, running `grunt minify` will only run the `uglify:a
 
 In most cases, you shouldn't need to add any special configuration for the `newer` or `any-newer` tasks.  Just `grunt.loadNpmTasks('grunt-newer')` and you can use the tasks.  The single option below is available if you need a custom configuration.
 
-#### <a id="optionstimestamps">options.timestamps</a>
+#### <a id="optionscache">options.cache</a>
  * type: `string`
  * default: `node_modules/grunt-newer/.cache`
 
-To keep track of timestamps for successful runs, the `newer` and `any-newer` tasks write to a cache directory.  The default is to use a `.cache` directory within the `grunt-newer` installation directory.  If you need timestamp info to be written to a different location, configure the task with a `timestamps` option.
+To keep track of timestamps for successful runs, the `newer` and `any-newer` tasks write to a cache directory.  The default is to use a `.cache` directory within the `grunt-newer` installation directory.  If you need timestamp info to be written to a different location, configure the task with a `cache` option.
 
-Example use of the `timestamps` option:
+Example use of the `cache` option:
 
 ```js
   grunt.initConfig({
     newer: {
       options: {
-        timestamps: 'path/to/custom/cache/directory'
+        cache: 'path/to/custom/cache/directory'
       }
     }
   });
