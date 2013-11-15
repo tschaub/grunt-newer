@@ -45,9 +45,8 @@ function createTask(grunt, any) {
       options.cache = options.timestamps;
     }
 
-    var config = grunt.config.get([name, target]);
-    var id = cacheConfig(config);
-    config = grunt.util._.clone(config);
+    var originalConfig = grunt.config.get([name, target]);
+    var config = grunt.util._.clone(originalConfig);
 
     /**
      * Special handling for watch task.  This is a multitask that expects
@@ -117,6 +116,7 @@ function createTask(grunt, any) {
         delete config.src;
         delete config.dest;
         grunt.config.set([name, target], config);
+        var id = cacheConfig(originalConfig);
         tasks.push('newer-reconfigure:' + qualified + ':' + id);
       }
 
