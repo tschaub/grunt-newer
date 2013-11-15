@@ -2,6 +2,8 @@
 
 Configure [Grunt](http://gruntjs.com/) tasks to run with only those files modified since the last successful run.
 
+**Synopsis:**  The [`newer`](#newer) and [`any-newer`](#any-newer) tasks will configure another task to run with `src` files that are *a)* newer than the `dest` files or *b)* newer than the last successful run (if there are no `dest` files).  The [`newer`](#newer) task should be used when you have a 1:1 `src`:`dest` mapping or no `dest` files.  The [`any-newer`](#any-newer) task should be used when you have a many:1 `src`:`dest` mapping.
+
 ## Getting Started
 This plugin requires Grunt `~0.4.1`
 
@@ -17,6 +19,9 @@ Once the plugin has been installed, it may be enabled inside your `gruntfile.js`
 grunt.loadNpmTasks('grunt-newer');
 ```
 
+The `grunt-newer` plugin provides two tasks: [`newer`](#newer) and [`any-newer`](#any-newer).  You can read through a description of each with examples below.
+
+<a name="newer"></a>
 ## The `newer` task
 
 The `newer` task doesn't require any special configuration.  To use it, just add `newer` as the first argument when running other tasks.
@@ -41,9 +46,9 @@ For example, if you want to run [JSHint](https://npmjs.org/package/grunt-contrib
   grunt.registerTask('lint', ['newer:jshint:all']);
 ```
 
-With the above configuration, running `grunt lint` will configure your `jshint:all` task to use only files in the `src` config that have been modified since the last successful run of the same task.
+With the above configuration, running `grunt lint` will configure your `jshint:all` task to use only files in the `jshint.all.src` config that have been modified since the last successful run of the same task.  The first time the `jshint:newer:all` task runs, all source files will be used.  After that, only the files you modify will be run through the linter.
 
-Another example is to use the `newer` task in conjunction with `watch`.  For example, you might want to set up a watch to run a linter on all your `.js` files whenever any of them changes.  With the `newer` task, instead of re-running the linter on all files, you only need to run it on the files that changed.
+Another example is to use the `newer` task in conjunction with `watch`.  For example, you might want to set up a watch to run a linter on all your `.js` files whenever one changes.  With the `newer` task, instead of re-running the linter on all files, you only need to run it on the files that changed.
 
 ```js
   var srcFiles = 'src/**/*.js';
@@ -70,10 +75,12 @@ Another example is to use the `newer` task in conjunction with `watch`.  For exa
 
 With the above configuration, running `grunt jshint watch` will first lint all your files with `jshint` and then set up a watch.  Whenever one of your source files changes, the `jshint` task will be run on just the modified file.
 
+*Note:* If your task is configured with `dest` files, `newer` will run your task with only those files that are newer than the corresponding `dest` files.
 
+<a name="any-newer"></a>
 ## The `any-newer` task
 
-The `newer` task described above reconfigures the target task to run with only those files that have been modified since the last run.  This works well for tasks that don't generate new files (like linting).  When you have a task that generates destination files based on configured source files, you likely want to process all source files if any one of them has been modified since the last run.  The `any-newer` task serves this purpose.
+The `newer` task described above reconfigures your task to run with only those files that have been modified.  This works well for tasks that don't generate new files (like `jshint`) or for tasks that generate one dest file for each source file (like `less`).  When you have a task that generates one destination file from many source files (like `concat` or `uglify` when generating one dest file), you'll want to process *all* source files if *any one* of them has been modified.  The `any-newer` task serves this purpose.
 
 For example, if you want to run [UglifyJS](https://npmjs.org/package/grunt-contrib-uglify) on all your source files only when one or more have been modified since the last run, configure the `uglify` task as you would otherwise, and then register a task with `any-newer` at the front.
 
@@ -95,7 +102,7 @@ For example, if you want to run [UglifyJS](https://npmjs.org/package/grunt-contr
   grunt.registerTask('minify', ['any-newer:uglify:all']);
 ```
 
-With the above configuration, running `grunt minify` will only run the `uglify:all` task if one or more of the configured `src` files have been modified since the last successful run of the same task.
+With the above configuration, running `grunt minify` will only run the `uglify:all` task if one or more of the configured `src` files is newer than the `dest/app.min.js` file.
 
 ## Options for the `newer` and `any-newer` tasks
 
