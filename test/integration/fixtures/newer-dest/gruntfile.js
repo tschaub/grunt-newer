@@ -11,7 +11,7 @@ module.exports = function(grunt) {
   grunt.initConfig({
     newer: {
       options: {
-        timestamps: path.join(__dirname, '.cache')
+        cache: path.join(__dirname, '.cache')
       }
     },
     modified: {
