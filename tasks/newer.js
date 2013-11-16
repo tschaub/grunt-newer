@@ -95,7 +95,7 @@ function createTask(grunt, any) {
         return done();
       }
 
-      var id = '-1'; // special id to indicate no cached config
+      var id = -1; // special id to indicate no cached config
 
       if (!any) {
         /**

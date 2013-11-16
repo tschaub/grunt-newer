@@ -3,7 +3,7 @@ var fs = require('fs');
 
 
 /**
- * Create a clone of the object without the with just src and dest properties.
+ * Create a clone of the object with just src and dest properties.
  * @param {Object} obj Source object.
  * @return {Object} Pruned clone.
  */
