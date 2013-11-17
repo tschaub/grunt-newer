@@ -23,7 +23,7 @@ function pluckConfig(id) {
   return config;
 }
 
-function createTask(grunt, any) {
+function createTask(grunt) {
   return function(name, target) {
     var tasks = [];
     var prefix = this.name;
@@ -95,27 +95,23 @@ function createTask(grunt, any) {
         return done();
       }
 
-      var id = '-1'; // special id to indicate no cached config
-
-      if (!any) {
-        /**
-         * If we started out with only src files in the files config,
-         * transform the newerFiles array into an array of source files.
-         */
-        if (!srcFiles) {
-          newerFiles = newerFiles.map(function(obj) {
-            return obj.src;
-          });
-        }
-
-        // configure target with only newer files
-        config.files = newerFiles;
-        delete config.src;
-        delete config.dest;
-        grunt.config.set([name, target], config);
-        // because we modified the task config, cache the original
-        id = cacheConfig(originalConfig);
+      /**
+       * If we started out with only src files in the files config,
+       * transform the newerFiles array into an array of source files.
+       */
+      if (!srcFiles) {
+        newerFiles = newerFiles.map(function(obj) {
+          return obj.src;
+        });
       }
+
+      // configure target with only newer files
+      config.files = newerFiles;
+      delete config.src;
+      delete config.dest;
+      grunt.config.set([name, target], config);
+      // because we modified the task config, cache the original
+      var id = cacheConfig(originalConfig);
 
       // run the task, and attend to postrun tasks
       var tasks = [
@@ -138,9 +134,13 @@ module.exports = function(grunt) {
       'newer', 'Run a task with only those source files that have been ' +
       'modified since the last successful run.', createTask(grunt));
 
+  var deprecated = 'DEPRECATED TASK.  Use the "newer" task instead';
   grunt.registerTask(
-      'any-newer', 'Run a task with all source files if any have been ' +
-      'modified since the last successful run.', createTask(grunt, true));
+      'any-newer', deprecated, function() {
+        grunt.log.warn(deprecated);
+        var args = Array.prototype.join.call(arguments, ':');
+        grunt.task.run(['newer:' + args]);
+      });
 
   grunt.registerTask(
       'newer-postrun', 'Internal task.', function(name, target, id, dir) {

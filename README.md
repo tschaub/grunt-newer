@@ -1,8 +1,8 @@
 # grunt-newer
 
-Configure [Grunt](http://gruntjs.com/) tasks to run with only those files modified since the last successful run.
+Configure [Grunt](http://gruntjs.com/) tasks to run with newer files only.
 
-**Synopsis:**  The [`newer`](#newer) and [`any-newer`](#any-newer) tasks will configure another task to run with `src` files that are *a)* newer than the `dest` files or *b)* newer than the last successful run (if there are no `dest` files).  The [`newer`](#newer) task should be used when you have a 1:1 `src`:`dest` mapping or no `dest` files.  The [`any-newer`](#any-newer) task should be used when you have a many:1 `src`:`dest` mapping.
+**Synopsis:**  The [`newer`](#newer) task will configure another task to run with `src` files that are *a)* newer than the `dest` files or *b)* newer than the last successful run (if there are no `dest` files).  See below for examples and more detail.
 
 ## Getting Started
 This plugin requires Grunt `~0.4.1`
@@ -19,12 +19,35 @@ Once the plugin has been installed, it may be enabled inside your `gruntfile.js`
 grunt.loadNpmTasks('grunt-newer');
 ```
 
-The `grunt-newer` plugin provides two tasks: [`newer`](#newer) and [`any-newer`](#any-newer).  You can read through a description of each with examples below.
-
 <a name="newer"></a>
 ## The `newer` task
 
 The `newer` task doesn't require any special configuration.  To use it, just add `newer` as the first argument when running other tasks.
+
+For example, if you want to use [Uglify](https://npmjs.org/package/grunt-contrib-uglify) to minify your source files only when one or more of them is newer than the previously minified destination file, configure the `uglify` task as you would otherwise, and then register a task with `newer` at the front.
+
+```js
+  grunt.initConfig({
+    uglify: {
+      all: {
+        files: {
+          'dest/app.min.js': ['src/**/*.js']
+        }
+      }
+    }
+  });
+
+  grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-newer');
+
+  grunt.registerTask('minify', ['newer:uglify:all']);
+```
+
+With the above configuration the `minify` task will only run `uglify` if one or more of the `src/**/*.js` files is newer than the `dest/app.min.js` file.
+
+The above example shows how the `newer` task works with other tasks that specify both `src` and `dest` files.  In this case, the modification time of `src` files are compared to modification times of corresponding `dest` files to determine which `src` files to include.
+
+The `newer` task can also be used with tasks that don't generate any `dest` files.  In this case, `newer` will only use files that are newer than the last successful run of the same task.
 
 For example, if you want to run [JSHint](https://npmjs.org/package/grunt-contrib-jshint) on only those files that have been modified since the last successful run, configure the `jshint` task as you would otherwise, and then register a task with `newer` at the front.
 
@@ -77,42 +100,15 @@ With the above configuration, running `grunt jshint watch` will first lint all y
 
 *Note:* If your task is configured with `dest` files, `newer` will run your task with only those files that are newer than the corresponding `dest` files.
 
-<a name="any-newer"></a>
-## The `any-newer` task
+## Options for the `newer` task
 
-The `newer` task described above reconfigures your task to run with only those files that have been modified.  This works well for tasks that don't generate new files (like `jshint`) or for tasks that generate one dest file for each source file (like `less`).  When you have a task that generates one destination file from many source files (like `concat` or `uglify` when generating one dest file), you'll want to process *all* source files if *any one* of them has been modified.  The `any-newer` task serves this purpose.
-
-For example, if you want to run [UglifyJS](https://npmjs.org/package/grunt-contrib-uglify) on all your source files only when one or more have been modified since the last run, configure the `uglify` task as you would otherwise, and then register a task with `any-newer` at the front.
-
-
-```js
-  grunt.initConfig({
-    uglify: {
-      all: {
-        files: {
-          'dest/app.min.js': 'src/**/*.js'
-        }
-      }
-    }
-  });
-
-  grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-newer');
-
-  grunt.registerTask('minify', ['any-newer:uglify:all']);
-```
-
-With the above configuration, running `grunt minify` will only run the `uglify:all` task if one or more of the configured `src` files is newer than the `dest/app.min.js` file.
-
-## Options for the `newer` and `any-newer` tasks
-
-In most cases, you shouldn't need to add any special configuration for the `newer` or `any-newer` tasks.  Just `grunt.loadNpmTasks('grunt-newer')` and you can use the tasks.  The single option below is available if you need a custom configuration.
+In most cases, you shouldn't need to add any special configuration for the `newer` task.  Just `grunt.loadNpmTasks('grunt-newer')` and you can use `newer` as a prefix to your other tasks.  The single option below is available if you need a custom configuration.
 
 #### <a id="optionscache">options.cache</a>
  * type: `string`
  * default: `node_modules/grunt-newer/.cache`
 
-To keep track of timestamps for successful runs, the `newer` and `any-newer` tasks write to a cache directory.  The default is to use a `.cache` directory within the `grunt-newer` installation directory.  If you need timestamp info to be written to a different location, configure the task with a `cache` option.
+To keep track of timestamps for successful runs, the `newer` task writes to a cache directory.  The default is to use a `.cache` directory within the `grunt-newer` installation directory.  If you need timestamp info to be written to a different location, configure the task with a `cache` option.
 
 Example use of the `cache` option:
 
