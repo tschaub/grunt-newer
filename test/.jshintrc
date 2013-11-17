@@ -12,7 +12,9 @@
   "globals": {
     "exports": true,
     "before": false,
+    "beforeEach": false,
     "after": false,
+    "afterEach": false,
     "describe": false,
     "it": false,
     "module": false,
