@@ -42,6 +42,7 @@ function createTask(grunt) {
 
     // support deprecated timestamps option
     if (options.timestamps) {
+      grunt.log.warn('DEPRECATED OPTION.  Use the "cache" option instead');
       options.cache = options.timestamps;
     }
 
