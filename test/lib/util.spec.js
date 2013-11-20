@@ -1,3 +1,5 @@
+var path = require('path');
+
 var mock = require('mock-fs');
 var rewire = require('rewire');
 
@@ -59,6 +61,52 @@ describe('util', function() {
         assert.equal(results, undefined);
         done();
       });
+
+    });
+
+    it('accepts a user provided isNewer test (always false)', function(done) {
+
+      var paths = [
+        'src/js/a.js',
+        'src/js/b.js',
+        'src/js/c.js'
+      ];
+
+      var isNewer = function(src, time, callback) {
+        callback(false);
+      };
+
+      util.filterPathsByTime(paths, new Date(250), function(err, results) {
+        if (err) {
+          return done(err);
+        }
+        assert.equal(results.length, 1);
+        assert.deepEqual(results.sort(), ['src/js/c.js']);
+        done();
+      }, isNewer);
+
+    });
+
+    it('accepts a user provided isNewer test (true for b.js)', function(done) {
+
+      var paths = [
+        'src/js/a.js',
+        'src/js/b.js',
+        'src/js/c.js'
+      ];
+
+      var isNewer = function(src, time, callback) {
+        callback(path.basename(src) === 'b.js');
+      };
+
+      util.filterPathsByTime(paths, new Date(250), function(err, results) {
+        if (err) {
+          return done(err);
+        }
+        assert.equal(results.length, 2);
+        assert.deepEqual(results.sort(), ['src/js/b.js', 'src/js/c.js']);
+        done();
+      }, isNewer);
 
     });
 

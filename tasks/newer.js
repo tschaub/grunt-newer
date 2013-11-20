@@ -37,8 +37,16 @@ function createTask(grunt) {
     }
     var args = Array.prototype.slice.call(arguments, 2).join(':');
     var options = this.options({
-      cache: path.join(__dirname, '..', '.cache')
+      cache: path.join(__dirname, '..', '.cache'),
+      isNewer: null
     });
+
+    var isNewer = null;
+    if (options.isNewer) {
+      isNewer = function(src, time, callback) {
+        options.isNewer(name, target, src, time, callback);
+      };
+    }
 
     // support deprecated timestamps option
     if (options.timestamps) {
@@ -122,7 +130,7 @@ function createTask(grunt) {
       grunt.task.run(tasks);
 
       done();
-    });
+    }, isNewer);
 
   };
 }
