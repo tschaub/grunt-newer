@@ -27,7 +27,7 @@ module.exports = function(grunt) {
 
     jshint: {
       options: {
-        jshintrc: '.jshintrc'
+        jshintrc: true
       },
       gruntfile: {
         src: gruntfileSrc
@@ -36,9 +36,6 @@ module.exports = function(grunt) {
         src: tasksSrc
       },
       tests: {
-        options: {
-          jshintrc: 'test/.jshintrc'
-        },
         src: testSrc
       },
       fixturesJs: {
