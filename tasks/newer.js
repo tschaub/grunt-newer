@@ -2,6 +2,7 @@ var fs = require('fs');
 var path = require('path');
 
 var async = require('async');
+var rimraf = require('rimraf');
 
 var util = require('../lib/util');
 
@@ -155,6 +156,28 @@ module.exports = function(grunt) {
           grunt.config.set([name, target], pluckConfig(id));
         }
 
+      });
+
+  grunt.registerTask(
+      'newer-clean', 'Remove cached timestamps.', function(name, target) {
+        var done = this.async();
+
+        /**
+         * This intentionally only works with the default cache dir.  If a
+         * custom cache dir is provided, it is up to the user to keep it clean.
+         */
+        var cacheDir = path.join(__dirname, '..', '.cache');
+        if (name && target) {
+          cacheDir = util.getStampPath(cacheDir, name, target);
+        } else if (name) {
+          cacheDir = path.join(cacheDir, name);
+        }
+        if (grunt.file.exists(cacheDir)) {
+          grunt.log.writeln('Cleaning ' + cacheDir);
+          rimraf(cacheDir, done);
+        } else {
+          done();
+        }
       });
 
 };
