@@ -29,16 +29,16 @@
     "start": "grunt test watch"
   },
   "devDependencies": {
-    "grunt": "0.4.1",
-    "grunt-cli": "0.1.9",
+    "grunt": "0.4.2",
+    "grunt-cli": "0.1.11",
     "grunt-contrib-watch": "0.5.3",
-    "grunt-contrib-jshint": "0.6.4",
-    "chai": "1.7.2",
-    "grunt-cafe-mocha": "0.1.8",
-    "wrench": "1.5.1",
+    "grunt-contrib-jshint": "0.7.2",
+    "chai": "1.8.1",
+    "grunt-cafe-mocha": "0.1.10",
+    "wrench": "1.5.4",
     "tmp": "0.0.21",
     "grunt-contrib-clean": "0.5.0",
-    "mock-fs": "0.2.0",
+    "mock-fs": "0.10.1",
     "rewire": "2.0.0"
   },
   "peerDependencies": {
