@@ -140,4 +140,4 @@ The `newer` task will *not* work as a prefix for the following tasks:
 
  * [`grunt-rsync`](http://npmjs.org/package/grunt-rsync) - Though this task specifies `src` and `dest` files, the `dest` file is not generated based on `src` files (instead it is a directory).
 
- * [`grunt-spritely`](http://npmjs.org/package/grunt-rsync) - This task uses multiple `src` images to produce `destImg` and `destCSS` files.  In this case, since there is no `dest` config property, `newer` will only include the `src` files that are newer than the last successful run (though what you likely want is *all* `src` files if any is newer than either `destImg` or `destCSS`).
+ * [`grunt-spritesmith`](https://npmjs.org/package/grunt-spritesmith) - This task uses multiple `src` images to produce `destImg` and `destCSS` files.  Instead use the [`grunt-spritely`](https://npmjs.org/package/grunt-spritely) task configured with `src` and `dest` files.
