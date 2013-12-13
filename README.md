@@ -127,3 +127,17 @@ Example use of the `cache` option:
 Please [submit an issue](https://github.com/tschaub/grunt-newer/issues) if you encounter any trouble.  Contributions or suggestions for improvements welcome!
 
 [![Current Status](https://secure.travis-ci.org/tschaub/grunt-newer.png?branch=master)](https://travis-ci.org/tschaub/grunt-newer)
+
+## Known limitations
+
+The `newer` task relys on Grunt's convention for specifying [`src`/`dest` mappings](http://gruntjs.com/configuring-tasks#files).  So it should be expected to work with two types of tasks:
+
+1) Tasks that specify both `src` and `dest` files.  In this case, the task prefixed by `newer` will be configured to run with `src` files that are newer than the corresponding `dest` file (based on the `mtime` of files).
+
+2) Tasks that specify only `src` files.  In this case, the task prefixed by `newer` will be configured to run with `src` files that are newer than the previous successful run of the same task.
+
+The `newer` task will *not* work as a prefix for the following tasks:
+
+ * [`grunt-rsync`](http://npmjs.org/package/grunt-rsync) - Though this task specifies `src` and `dest` files, the `dest` file is not generated based on `src` files (instead it is a directory).
+
+ * [`grunt-spritely`](http://npmjs.org/package/grunt-rsync) - This task uses multiple `src` images to produce `destImg` and `destCSS` files.  In this case, since there is no `dest` config property, `newer` will only include the `src` files that are newer than the last successful run (though what you likely want is *all* `src` files if any is newer than either `destImg` or `destCSS`).
