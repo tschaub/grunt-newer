@@ -130,7 +130,7 @@ Please [submit an issue](https://github.com/tschaub/grunt-newer/issues) if you e
 
 ## Known limitations
 
-The `newer` task relys on Grunt's convention for specifying [`src`/`dest` mappings](http://gruntjs.com/configuring-tasks#files).  So it should be expected to work with two types of tasks:
+The `newer` task relies on Grunt's convention for specifying [`src`/`dest` mappings](http://gruntjs.com/configuring-tasks#files).  So it should be expected to work with two types of tasks:
 
 1) Tasks that specify both `src` and `dest` files.  In this case, the task prefixed by `newer` will be configured to run with `src` files that are newer than the corresponding `dest` file (based on the `mtime` of files).
 
