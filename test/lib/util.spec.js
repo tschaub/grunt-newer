@@ -1,18 +1,16 @@
 var mock = require('mock-fs');
-var rewire = require('rewire');
 
 var assert = require('../helper').assert;
+var util = require('../../lib/util');
 
-var fs = mock.fs();
-var util = rewire('../../lib/util');
-util.__set__('fs', fs);
 
 describe('util', function() {
 
   describe('filterPathsByTime()', function() {
 
+    var restore;
     beforeEach(function() {
-      fs._reconfigure({
+      restore = mock({
         src: {
           js: {
             'a.js': mock.file({
@@ -27,6 +25,9 @@ describe('util', function() {
           }
         }
       });
+    });
+    afterEach(function() {
+      restore();
     });
 
     it('calls callback with files newer than provided time', function(done) {
@@ -66,8 +67,9 @@ describe('util', function() {
 
   describe('anyNewer()', function() {
 
+    var restore;
     beforeEach(function() {
-      fs._reconfigure({
+      restore = mock({
         src: {
           js: {
             'a.js': mock.file({
@@ -82,6 +84,9 @@ describe('util', function() {
           }
         }
       });
+    });
+    afterEach(function() {
+      restore();
     });
 
     var paths = [
@@ -122,8 +127,9 @@ describe('util', function() {
 
   describe('filterFilesByTime()', function() {
 
+    var restore;
     beforeEach(function() {
-      fs._reconfigure({
+      restore = mock({
         src: {
           js: {
             'a.js': mock.file({
@@ -153,6 +159,9 @@ describe('util', function() {
           }
         }
       });
+    });
+    afterEach(function() {
+      restore();
     });
 
     it('provides all files if any is newer than dest', function(done) {
