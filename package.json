@@ -38,7 +38,7 @@
     "wrench": "1.5.4",
     "tmp": "0.0.21",
     "grunt-contrib-clean": "0.5.0",
-    "mock-fs": "1.0.0"
+    "mock-fs": "2.x"
   },
   "peerDependencies": {
     "grunt": "~0.4.1"

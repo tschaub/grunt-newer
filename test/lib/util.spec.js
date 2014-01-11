@@ -8,9 +8,8 @@ describe('util', function() {
 
   describe('filterPathsByTime()', function() {
 
-    var restore;
     beforeEach(function() {
-      restore = mock({
+      mock({
         src: {
           js: {
             'a.js': mock.file({
@@ -26,9 +25,7 @@ describe('util', function() {
         }
       });
     });
-    afterEach(function() {
-      restore();
-    });
+    afterEach(mock.restore);
 
     it('calls callback with files newer than provided time', function(done) {
 
@@ -67,9 +64,8 @@ describe('util', function() {
 
   describe('anyNewer()', function() {
 
-    var restore;
     beforeEach(function() {
-      restore = mock({
+      mock({
         src: {
           js: {
             'a.js': mock.file({
@@ -85,9 +81,7 @@ describe('util', function() {
         }
       });
     });
-    afterEach(function() {
-      restore();
-    });
+    afterEach(mock.restore);
 
     var paths = [
       'src/js/a.js',
@@ -127,9 +121,8 @@ describe('util', function() {
 
   describe('filterFilesByTime()', function() {
 
-    var restore;
     beforeEach(function() {
-      restore = mock({
+      mock({
         src: {
           js: {
             'a.js': mock.file({
@@ -160,9 +153,7 @@ describe('util', function() {
         }
       });
     });
-    afterEach(function() {
-      restore();
-    });
+    afterEach(mock.restore);
 
     it('provides all files if any is newer than dest', function(done) {
       var files = [{
