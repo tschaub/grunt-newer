@@ -187,6 +187,32 @@ describe('util', function() {
       });
     });
 
+    it('provides newer src files if same as dest', function(done) {
+      var files = [{
+        src: ['src/js/a.js'],
+        dest: 'src/js/a.js'
+      }, {
+        src: ['src/js/b.js'],
+        dest: 'src/js/b.js'
+      }, {
+        src: ['src/js/c.js'],
+        dest: 'src/js/c.js'
+      }];
+      util.filterFilesByTime(files, new Date(150), function(err, results) {
+        assert.isNull(err);
+        assert.equal(results.length, 2);
+        var first = results[0];
+        assert.equal(first.dest, 'src/js/b.js');
+        assert.equal(first.src.length, 1);
+        assert.deepEqual(first.src, files[1].src);
+        var second = results[1];
+        assert.equal(second.dest, 'src/js/c.js');
+        assert.equal(second.src.length, 1);
+        assert.deepEqual(second.src, files[2].src);
+        done();
+      });
+    });
+
     it('provides files newer than previous if no dest', function(done) {
       var files = [{
         src: ['src/js/a.js', 'src/js/b.js', 'src/js/c.js']
