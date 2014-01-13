@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.6.1
+
+ * When `src` and `dest` files are the same, the previous run time is considered (see #24)
+
 ## 0.6.0
 
  * Deprecated `any-newer` task (`newer` task now handles this automatically, see #17)
