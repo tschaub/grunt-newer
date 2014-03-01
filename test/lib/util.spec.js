@@ -6,10 +6,8 @@ var util = require('../../lib/util');
 
 describe('util', function() {
 
-  function override(filePath, time, include) {
-    process.nextTick(function() {
-      include(false);
-    });
+  function nullOverride(filePath, time, include) {
+    include(false);
   }
 
   describe('filterPathsByTime()', function() {
@@ -41,7 +39,7 @@ describe('util', function() {
         'src/js/c.js'
       ];
 
-      util.filterPathsByTime(paths, new Date(150), override,
+      util.filterPathsByTime(paths, new Date(150), nullOverride,
           function(err, results) {
         if (err) {
           return done(err);
@@ -53,13 +51,66 @@ describe('util', function() {
 
     });
 
+    it('calls override with older files and comparison time', function(done) {
+
+      var paths = [
+        'src/js/a.js',
+        'src/js/b.js',
+        'src/js/c.js'
+      ];
+
+      function customOverride(filePath, time, include) {
+        assert.equal(filePath, 'src/js/a.js');
+        assert.equal(time.getTime(), 150);
+        include(false);
+      }
+
+      util.filterPathsByTime(paths, new Date(150), customOverride,
+          function(err, results) {
+        if (err) {
+          return done(err);
+        }
+        assert.equal(results.length, 2);
+        assert.deepEqual(results.sort(), ['src/js/b.js', 'src/js/c.js']);
+        done();
+      });
+
+    });
+
+    it('allows override to force inclusion of older files', function(done) {
+
+      var paths = [
+        'src/js/a.js',
+        'src/js/b.js',
+        'src/js/c.js'
+      ];
+
+      function customOverride(filePath, time, include) {
+        assert.equal(filePath, 'src/js/a.js');
+        assert.equal(time.getTime(), 150);
+        include(true);
+      }
+
+      util.filterPathsByTime(paths, new Date(150), customOverride,
+          function(err, results) {
+        if (err) {
+          return done(err);
+        }
+        assert.equal(results.length, 3);
+        assert.deepEqual(results.sort(),
+            ['src/js/a.js', 'src/js/b.js', 'src/js/c.js']);
+        done();
+      });
+
+    });
+
     it('calls callback error if file not found', function(done) {
 
       var paths = [
         'src/bogus-file.js'
       ];
 
-      util.filterPathsByTime(paths, new Date(150), override,
+      util.filterPathsByTime(paths, new Date(150), nullOverride,
           function(err, results) {
         assert.instanceOf(err, Error);
         assert.equal(results, undefined);
@@ -98,7 +149,21 @@ describe('util', function() {
     ];
 
     it('calls callback with true if any file is newer', function(done) {
-      util.anyNewer(paths, new Date(250), override, function(err, newer) {
+      util.anyNewer(paths, new Date(250), nullOverride, function(err, newer) {
+        if (err) {
+          return done(err);
+        }
+        assert.isTrue(newer);
+        done();
+      });
+    });
+
+    it('does not call override if all files are newer', function(done) {
+      function override(filePath, time, include) {
+        done(new Error('Override should not be called'));
+      }
+
+      util.anyNewer(paths, new Date(1), override, function(err, newer) {
         if (err) {
           return done(err);
         }
@@ -108,7 +173,7 @@ describe('util', function() {
     });
 
     it('calls callback with false if no files are newer', function(done) {
-      util.anyNewer(paths, new Date(350), override, function(err, newer) {
+      util.anyNewer(paths, new Date(350), nullOverride, function(err, newer) {
         if (err) {
           return done(err);
         }
@@ -117,8 +182,38 @@ describe('util', function() {
       });
     });
 
+    it('calls override with older file and time', function(done) {
+      function override(filePath, time, include) {
+        assert.equal(filePath, 'src/js/a.js');
+        assert.equal(time.getTime(), 150);
+        include(false);
+      }
+
+      util.anyNewer(paths, new Date(150), override, function(err, newer) {
+        if (err) {
+          return done(err);
+        }
+        assert.isTrue(newer);
+        done();
+      });
+    });
+
+    it('allows override to force inclusion of older files', function(done) {
+      function override(filePath, time, include) {
+        include(true);
+      }
+
+      util.anyNewer(paths, new Date(1000), override, function(err, newer) {
+        if (err) {
+          return done(err);
+        }
+        assert.isTrue(newer);
+        done();
+      });
+    });
+
     it('calls callback with error if file not found', function(done) {
-      util.anyNewer(['bogus/file.js'], new Date(350), override,
+      util.anyNewer(['bogus/file.js'], new Date(350), nullOverride,
           function(err, newer) {
         assert.instanceOf(err, Error);
         assert.equal(newer, undefined);
@@ -169,7 +264,7 @@ describe('util', function() {
         src: ['src/js/a.js', 'src/js/b.js', 'src/js/c.js'],
         dest: 'dest/js/abc.min.js'
       }];
-      util.filterFilesByTime(files, new Date(1000), override,
+      util.filterFilesByTime(files, new Date(1000), nullOverride,
           function(err, results) {
         assert.isNull(err);
         assert.equal(results.length, 1);
@@ -186,7 +281,7 @@ describe('util', function() {
         src: ['src/js/a.js', 'src/js/b.js', 'src/js/c.js'],
         dest: 'dest/js/foo.min.js'
       }];
-      util.filterFilesByTime(files, new Date(1000), override,
+      util.filterFilesByTime(files, new Date(1000), nullOverride,
           function(err, results) {
         assert.isNull(err);
         assert.equal(results.length, 1);
@@ -209,7 +304,7 @@ describe('util', function() {
         src: ['src/js/c.js'],
         dest: 'src/js/c.js'
       }];
-      util.filterFilesByTime(files, new Date(150), override,
+      util.filterFilesByTime(files, new Date(150), nullOverride,
           function(err, results) {
         assert.isNull(err);
         assert.equal(results.length, 2);
@@ -229,7 +324,7 @@ describe('util', function() {
       var files = [{
         src: ['src/js/a.js', 'src/js/b.js', 'src/js/c.js']
       }];
-      util.filterFilesByTime(files, new Date(200), override,
+      util.filterFilesByTime(files, new Date(200), nullOverride,
           function(err, results) {
         assert.isNull(err);
         assert.equal(results.length, 1);
@@ -248,7 +343,7 @@ describe('util', function() {
         src: ['src/less/two.less'],
         dest: 'dest/css/two.css'
       }];
-      util.filterFilesByTime(files, new Date(1000), override,
+      util.filterFilesByTime(files, new Date(1000), nullOverride,
           function(err, results) {
         assert.isNull(err);
         assert.equal(results.length, 1);
@@ -264,7 +359,7 @@ describe('util', function() {
         src: ['src/less/bogus.less'],
         dest: 'dest/css/one.css'
       }];
-      util.filterFilesByTime(files, new Date(1000), override,
+      util.filterFilesByTime(files, new Date(1000), nullOverride,
           function(err, results) {
         assert.instanceOf(err, Error);
         assert.isUndefined(results);
