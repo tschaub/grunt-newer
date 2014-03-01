@@ -77,10 +77,16 @@ function createTask(grunt) {
       previous = new Date(0);
     }
 
+    function override(filePath, time, include) {
+      process.nextTick(function() {
+        include(false);
+      });
+    }
+
     var files = grunt.task.normalizeMultiTaskFiles(config, targetName);
-    util.filterFilesByTime(files, previous, function(err, newerFiles) {
-      if (err) {
-        return done(err);
+    util.filterFilesByTime(files, previous, override, function(e, newerFiles) {
+      if (e) {
+        return done(e);
       } else if (newerFiles.length === 0) {
         grunt.log.writeln('No newer files to process.');
         return done();
