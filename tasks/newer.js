@@ -47,25 +47,6 @@ function createTask(grunt) {
       options.cache = options.timestamps;
     }
 
-    var originalConfig = grunt.config.get([name, target]);
-    var config = grunt.util._.clone(originalConfig);
-
-    /**
-     * Special handling for watch task.  This is a multitask that expects
-     * the `files` config to be a string or array of string source paths.
-     */
-    var srcFiles = true;
-    if (typeof config.files === 'string') {
-      config.src = [config.files];
-      delete config.files;
-      srcFiles = false;
-    } else if (Array.isArray(config.files) &&
-        typeof config.files[0] === 'string') {
-      config.src = config.files;
-      delete config.files;
-      srcFiles = false;
-    }
-
     var qualified = name + ':' + target;
     var stamp = util.getStampPath(options.cache, name, target);
     var repeat = grunt.file.exists(stamp);
@@ -86,6 +67,25 @@ function createTask(grunt) {
     // This task has succeeded before.  Filter src files.
 
     var done = this.async();
+
+    var originalConfig = grunt.config.get([name, target]);
+    var config = grunt.util._.clone(originalConfig);
+
+    /**
+     * Special handling for tasks that expect the `files` config to be a string
+     * or array of string source paths.
+     */
+    var srcFiles = true;
+    if (typeof config.files === 'string') {
+      config.src = [config.files];
+      delete config.files;
+      srcFiles = false;
+    } else if (Array.isArray(config.files) &&
+        typeof config.files[0] === 'string') {
+      config.src = config.files;
+      delete config.files;
+      srcFiles = false;
+    }
 
     var previous = fs.statSync(stamp).mtime;
     var files = grunt.task.normalizeMultiTaskFiles(config, target);
