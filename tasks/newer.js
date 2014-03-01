@@ -24,6 +24,10 @@ function pluckConfig(id) {
   return config;
 }
 
+function nullOverride(taskName, targetName, filePath, time, include) {
+  include(false);
+}
+
 function createTask(grunt) {
   return function(taskName, targetName) {
     var tasks = [];
@@ -38,7 +42,8 @@ function createTask(grunt) {
     }
     var args = Array.prototype.slice.call(arguments, 2).join(':');
     var options = this.options({
-      cache: path.join(__dirname, '..', '.cache')
+      cache: path.join(__dirname, '..', '.cache'),
+      override: nullOverride
     });
 
     // support deprecated timestamps option
@@ -78,9 +83,7 @@ function createTask(grunt) {
     }
 
     function override(filePath, time, include) {
-      process.nextTick(function() {
-        include(false);
-      });
+      options.override(taskName, targetName, filePath, time, include);
     }
 
     var files = grunt.task.normalizeMultiTaskFiles(config, targetName);
