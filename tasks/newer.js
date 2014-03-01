@@ -47,25 +47,6 @@ function createTask(grunt) {
       options.cache = options.timestamps;
     }
 
-    var qualified = taskName + ':' + targetName;
-    var stamp = util.getStampPath(options.cache, taskName, targetName);
-    var repeat = grunt.file.exists(stamp);
-
-    if (!repeat) {
-      /**
-       * This task has never succeeded before.  Process everything.  This is
-       * less efficient than it could be for cases where some dest files were
-       * created in previous runs that failed, but it makes things easier.
-       */
-      grunt.task.run([
-        qualified + (args ? ':' + args : ''),
-        'newer-postrun:' + qualified + ':-1:' + options.cache
-      ]);
-      return;
-    }
-
-    // This task has succeeded before.  Filter src files.
-
     var done = this.async();
 
     var originalConfig = grunt.config.get([taskName, targetName]);
@@ -87,7 +68,15 @@ function createTask(grunt) {
       srcFiles = false;
     }
 
-    var previous = fs.statSync(stamp).mtime;
+    var stamp = util.getStampPath(options.cache, taskName, targetName);
+    var previous;
+    try {
+      previous = fs.statSync(stamp).mtime;
+    } catch (err) {
+      // task has never succeeded before
+      previous = new Date(0);
+    }
+
     var files = grunt.task.normalizeMultiTaskFiles(config, targetName);
     util.filterFilesByTime(files, previous, function(err, newerFiles) {
       if (err) {
@@ -112,10 +101,12 @@ function createTask(grunt) {
       delete config.src;
       delete config.dest;
       grunt.config.set([taskName, targetName], config);
+
       // because we modified the task config, cache the original
       var id = cacheConfig(originalConfig);
 
       // run the task, and attend to postrun tasks
+      var qualified = taskName + ':' + targetName;
       var tasks = [
         qualified + (args ? ':' + args : ''),
         'newer-postrun:' + qualified + ':' + id + ':' + options.cache
@@ -152,10 +143,8 @@ module.exports = function(grunt) {
         dir = Array.prototype.slice.call(arguments, 3).join(':');
         grunt.file.write(util.getStampPath(dir, taskName, targetName), '');
 
-        // reconfigure task if modified config was set
-        if (id !== '-1') {
-          grunt.config.set([taskName, targetName], pluckConfig(id));
-        }
+        // reconfigure task with original config
+        grunt.config.set([taskName, targetName], pluckConfig(id));
 
       });
 
