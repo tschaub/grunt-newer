@@ -25,13 +25,13 @@ function pluckConfig(id) {
 }
 
 function createTask(grunt) {
-  return function(name, target) {
+  return function(taskName, targetName) {
     var tasks = [];
     var prefix = this.name;
-    if (!target) {
-      Object.keys(grunt.config(name)).forEach(function(target) {
-        if (!/^_|^options$/.test(target)) {
-          tasks.push(prefix + ':' + name + ':' + target);
+    if (!targetName) {
+      Object.keys(grunt.config(taskName)).forEach(function(targetName) {
+        if (!/^_|^options$/.test(targetName)) {
+          tasks.push(prefix + ':' + taskName + ':' + targetName);
         }
       });
       return grunt.task.run(tasks);
@@ -47,12 +47,14 @@ function createTask(grunt) {
       options.cache = options.timestamps;
     }
 
-    var originalConfig = grunt.config.get([name, target]);
+    var done = this.async();
+
+    var originalConfig = grunt.config.get([taskName, targetName]);
     var config = grunt.util._.clone(originalConfig);
 
     /**
-     * Special handling for watch task.  This is a multitask that expects
-     * the `files` config to be a string or array of string source paths.
+     * Special handling for tasks that expect the `files` config to be a string
+     * or array of string source paths.
      */
     var srcFiles = true;
     if (typeof config.files === 'string') {
@@ -66,29 +68,16 @@ function createTask(grunt) {
       srcFiles = false;
     }
 
-    var qualified = name + ':' + target;
-    var stamp = util.getStampPath(options.cache, name, target);
-    var repeat = grunt.file.exists(stamp);
-
-    if (!repeat) {
-      /**
-       * This task has never succeeded before.  Process everything.  This is
-       * less efficient than it could be for cases where some dest files were
-       * created in previous runs that failed, but it makes things easier.
-       */
-      grunt.task.run([
-        qualified + (args ? ':' + args : ''),
-        'newer-postrun:' + qualified + ':-1:' + options.cache
-      ]);
-      return;
+    var stamp = util.getStampPath(options.cache, taskName, targetName);
+    var previous;
+    try {
+      previous = fs.statSync(stamp).mtime;
+    } catch (err) {
+      // task has never succeeded before
+      previous = new Date(0);
     }
 
-    // This task has succeeded before.  Filter src files.
-
-    var done = this.async();
-
-    var previous = fs.statSync(stamp).mtime;
-    var files = grunt.task.normalizeMultiTaskFiles(config, target);
+    var files = grunt.task.normalizeMultiTaskFiles(config, targetName);
     util.filterFilesByTime(files, previous, function(err, newerFiles) {
       if (err) {
         return done(err);
@@ -111,11 +100,13 @@ function createTask(grunt) {
       config.files = newerFiles;
       delete config.src;
       delete config.dest;
-      grunt.config.set([name, target], config);
+      grunt.config.set([taskName, targetName], config);
+
       // because we modified the task config, cache the original
       var id = cacheConfig(originalConfig);
 
       // run the task, and attend to postrun tasks
+      var qualified = taskName + ':' + targetName;
       var tasks = [
         qualified + (args ? ':' + args : ''),
         'newer-postrun:' + qualified + ':' + id + ':' + options.cache
@@ -144,22 +135,22 @@ module.exports = function(grunt) {
         grunt.task.run(['newer:' + args]);
       });
 
+  var internal = 'Internal task.';
   grunt.registerTask(
-      'newer-postrun', 'Internal task.', function(name, target, id, dir) {
+      'newer-postrun', internal, function(taskName, targetName, id, dir) {
 
         // if dir includes a ':', grunt will split it among multiple args
         dir = Array.prototype.slice.call(arguments, 3).join(':');
-        grunt.file.write(util.getStampPath(dir, name, target), '');
+        grunt.file.write(util.getStampPath(dir, taskName, targetName), '');
 
-        // reconfigure task if modified config was set
-        if (id !== '-1') {
-          grunt.config.set([name, target], pluckConfig(id));
-        }
+        // reconfigure task with original config
+        grunt.config.set([taskName, targetName], pluckConfig(id));
 
       });
 
+  var clean = 'Remove cached timestamps.';
   grunt.registerTask(
-      'newer-clean', 'Remove cached timestamps.', function(name, target) {
+      'newer-clean', clean, function(taskName, targetName) {
         var done = this.async();
 
         /**
@@ -167,10 +158,10 @@ module.exports = function(grunt) {
          * custom cache dir is provided, it is up to the user to keep it clean.
          */
         var cacheDir = path.join(__dirname, '..', '.cache');
-        if (name && target) {
-          cacheDir = util.getStampPath(cacheDir, name, target);
-        } else if (name) {
-          cacheDir = path.join(cacheDir, name);
+        if (taskName && targetName) {
+          cacheDir = util.getStampPath(cacheDir, taskName, targetName);
+        } else if (taskName) {
+          cacheDir = path.join(cacheDir, taskName);
         }
         if (grunt.file.exists(cacheDir)) {
           grunt.log.writeln('Cleaning ' + cacheDir);
