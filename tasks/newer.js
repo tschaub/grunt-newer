@@ -24,7 +24,7 @@ function pluckConfig(id) {
   return config;
 }
 
-function nullOverride(taskName, targetName, filePath, time, include) {
+function nullOverride(details, include) {
   include(false);
 }
 
@@ -83,7 +83,13 @@ function createTask(grunt) {
     }
 
     function override(filePath, time, include) {
-      options.override(taskName, targetName, filePath, time, include);
+      var details = {
+        task: taskName,
+        target: targetName,
+        path: filePath,
+        time: time
+      };
+      options.override(details, include);
     }
 
     var files = grunt.task.normalizeMultiTaskFiles(config, targetName);
