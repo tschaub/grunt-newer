@@ -102,7 +102,7 @@ With the above configuration, running `grunt jshint watch` will first lint all y
 
 ## Options for the `newer` task
 
-In most cases, you shouldn't need to add any special configuration for the `newer` task.  Just `grunt.loadNpmTasks('grunt-newer')` and you can use `newer` as a prefix to your other tasks.  The single option below is available if you need a custom configuration.
+In most cases, you shouldn't need to add any special configuration for the `newer` task.  Just `grunt.loadNpmTasks('grunt-newer')` and you can use `newer` as a prefix to your other tasks.  The options below are available for advanced usage.
 
 #### <a id="optionscache">options.cache</a>
  * type: `string`
@@ -117,6 +117,37 @@ Example use of the `cache` option:
     newer: {
       options: {
         cache: 'path/to/custom/cache/directory'
+      }
+    }
+  });
+```
+
+#### <a id="optionsoverride">options.override</a>
+ * type: `function(Object, function(boolean))`
+ * default: `null`
+
+The `newer` task determines which files to include for a specific task based on file modification time.  There are occassions where you may want to include a file even if it has not been modified.  For example, if a LESS file imports some other files, you will want to include it if any of the imports have been modified.  To support this, you can provide an `override` function that takes two arguments:
+
+ * **details** - `Object`
+   * **task** - `string` The currently running task name.
+   * **target** - `string` The currently running target name.
+   * **path** - `string` The path to a `src` file that appears to be "older" (not modified since the time below).
+   * **time** - `Date` The comparison time.  For tasks with `dest` files, this is the modification time of the `dest` file.  For tasks without `dest` files, this is the last successful run time of the same task.
+ * **include** - `function(boolean)` A callback that determines whether this `src` file should be included.  Call with `true` to include or `false` to exclude the file.
+
+Example use of the `override` option:
+
+```js
+  grunt.initConfig({
+    newer: {
+      options: {
+        override: function(detail, include) {
+          if (detail.task === 'less') {
+            checkForModifiedImports(detail.path, detail.time, include);
+          } else {
+            include(false);
+          }
+        }
       }
     }
   });

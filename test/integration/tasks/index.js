@@ -36,9 +36,9 @@ module.exports = function(grunt) {
     var log = this.data.getLog();
 
     if (expected.length === 0) {
-      assert.equal(log.length, 0, 'No log entries');
+      assert.equal(log.length, 0, 'Expected no log entries, got ' + log.length);
     } else {
-      assert.equal(log.length, 1, 'One log entry');
+      assert.equal(log.length, 1, 'Expected one log entry, got ' + log.length);
       var actual = log[0];
       assert.deepEqual(actual, expected);
       log.length = 0;

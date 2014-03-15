@@ -24,6 +24,10 @@ function pluckConfig(id) {
   return config;
 }
 
+function nullOverride(details, include) {
+  include(false);
+}
+
 function createTask(grunt) {
   return function(taskName, targetName) {
     var tasks = [];
@@ -38,7 +42,8 @@ function createTask(grunt) {
     }
     var args = Array.prototype.slice.call(arguments, 2).join(':');
     var options = this.options({
-      cache: path.join(__dirname, '..', '.cache')
+      cache: path.join(__dirname, '..', '.cache'),
+      override: nullOverride
     });
 
     // support deprecated timestamps option
@@ -77,10 +82,20 @@ function createTask(grunt) {
       previous = new Date(0);
     }
 
+    function override(filePath, time, include) {
+      var details = {
+        task: taskName,
+        target: targetName,
+        path: filePath,
+        time: time
+      };
+      options.override(details, include);
+    }
+
     var files = grunt.task.normalizeMultiTaskFiles(config, targetName);
-    util.filterFilesByTime(files, previous, function(err, newerFiles) {
-      if (err) {
-        return done(err);
+    util.filterFilesByTime(files, previous, override, function(e, newerFiles) {
+      if (e) {
+        return done(e);
       } else if (newerFiles.length === 0) {
         grunt.log.writeln('No newer files to process.');
         return done();
