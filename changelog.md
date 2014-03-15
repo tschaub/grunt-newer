@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.7.0
+
+ * Support for `override` option.  In cases where a `src` file should be included even if it has not been modified (e.g. a LESS file whose imports have been modified), the `override` option can be used (see #35)
+
 ## 0.6.1
 
  * When `src` and `dest` files are the same, the previous run time is considered (see #24)
