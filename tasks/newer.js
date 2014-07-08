@@ -55,7 +55,14 @@ function createTask(grunt) {
     var done = this.async();
 
     var originalConfig = grunt.config.get([taskName, targetName]);
-    var config = grunt.util._.clone(originalConfig);
+    var config;
+    if (Array.isArray(originalConfig) || typeof originalConfig === 'string') {
+      config = {
+        files: originalConfig
+      };
+    } else {
+      config = grunt.util._.clone(originalConfig);
+    }
 
     /**
      * Special handling for tasks that expect the `files` config to be a string
