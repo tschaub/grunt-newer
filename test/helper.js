@@ -105,7 +105,7 @@ exports.afterFixture = function(scratch, done) {
 
 
 /** @type {boolean} */
-chai.Assertion.includeStack = true;
+chai.config.includeStack = true;
 
 
 /**

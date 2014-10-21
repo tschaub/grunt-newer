@@ -29,15 +29,15 @@
     "start": "grunt test watch"
   },
   "devDependencies": {
-    "grunt": "0.4.2",
+    "grunt": "0.4.5",
     "grunt-cli": "0.1.13",
-    "grunt-contrib-watch": "0.5.3",
-    "grunt-contrib-jshint": "0.8.0",
-    "chai": "1.9.0",
-    "grunt-cafe-mocha": "0.1.11",
-    "wrench": "1.5.7",
-    "tmp": "0.0.23",
-    "grunt-contrib-clean": "0.5.0",
+    "grunt-contrib-watch": "0.6.1",
+    "grunt-contrib-jshint": "0.10.0",
+    "chai": "1.9.2",
+    "grunt-cafe-mocha": "0.1.13",
+    "wrench": "1.5.8",
+    "tmp": "0.0.24",
+    "grunt-contrib-clean": "0.6.0",
     "mock-fs": "2.x"
   },
   "peerDependencies": {
@@ -50,7 +50,7 @@
     "files"
   ],
   "dependencies": {
-    "async": "0.2.10",
-    "rimraf": "2.2.6"
+    "async": "0.9.0",
+    "rimraf": "2.2.8"
   }
 }
