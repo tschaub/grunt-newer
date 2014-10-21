@@ -33,6 +33,10 @@ function createTask(grunt) {
     var tasks = [];
     var prefix = this.name;
     if (!targetName) {
+      if (!grunt.config(taskName)) {
+        grunt.fatal('The "' + prefix + '" prefix is not supported for aliases');
+        return;
+      }
       Object.keys(grunt.config(taskName)).forEach(function(targetName) {
         if (!/^_|^options$/.test(targetName)) {
           tasks.push(prefix + ':' + taskName + ':' + targetName);
