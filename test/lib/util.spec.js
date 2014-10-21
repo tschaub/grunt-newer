@@ -259,6 +259,57 @@ describe('util', function() {
     });
     afterEach(mock.restore);
 
+    it('compares to previous time if src & dest are same (a)', function(done) {
+      var files = [{
+        src: ['src/js/a.js'],
+        dest: 'src/js/a.js'
+      }];
+      util.filterFilesByTime(files, new Date(50), nullOverride,
+          function(err, results) {
+        assert.isNull(err);
+        assert.equal(results.length, 1);
+        var result = results[0];
+        assert.equal(result.dest, 'src/js/a.js');
+        assert.deepEqual(result.src, files[0].src);
+        done();
+      });
+    });
+
+    it('compares to previous time if src & dest are same (b)', function(done) {
+      var files = [{
+        src: ['src/js/a.js'],
+        dest: 'src/js/a.js'
+      }];
+      util.filterFilesByTime(files, new Date(150), nullOverride,
+          function(err, results) {
+        assert.isNull(err);
+        assert.equal(results.length, 0);
+        done();
+      });
+    });
+
+    it('compares to previous time if src & dest are same (c)', function(done) {
+      var files = [{
+        src: ['src/js/a.js'],
+        dest: 'src/js/a.js'
+      }, {
+        src: ['src/js/b.js'],
+        dest: 'src/js/b.js'
+      }];
+      util.filterFilesByTime(files, new Date(50), nullOverride,
+          function(err, results) {
+        assert.isNull(err);
+        assert.equal(results.length, 2);
+        var first = results[0];
+        assert.equal(first.dest, 'src/js/a.js');
+        assert.deepEqual(first.src, files[0].src);
+        var second = results[1];
+        assert.equal(second.dest, 'src/js/b.js');
+        assert.deepEqual(second.src, files[1].src);
+        done();
+      });
+    });
+
     it('provides all files if any is newer than dest', function(done) {
       var files = [{
         src: ['src/js/a.js', 'src/js/b.js', 'src/js/c.js'],
