@@ -50,7 +50,7 @@
     "files"
   ],
   "dependencies": {
-    "async": "0.2.10",
-    "rimraf": "2.2.6"
+    "async": "0.9.0",
+    "rimraf": "2.2.8"
   }
 }
