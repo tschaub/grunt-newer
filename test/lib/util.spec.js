@@ -182,6 +182,16 @@ describe('util', function() {
       });
     });
 
+    it('calls callback with false if no files are provided', function(done) {
+      util.anyNewer([], new Date(), nullOverride, function(err, newer) {
+        if (err) {
+          return done(err);
+        }
+        assert.isFalse(newer);
+        done();
+      });
+    });
+
     it('calls override with older file and time', function(done) {
       function override(filePath, time, include) {
         assert.equal(filePath, 'src/js/a.js');
