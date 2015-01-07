@@ -170,5 +170,3 @@ The `newer` task relies on Grunt's convention for specifying [`src`/`dest` mappi
 The `newer` task will *not* work as a prefix for the following tasks:
 
  * [`grunt-rsync`](http://npmjs.org/package/grunt-rsync) - Though this task specifies `src` and `dest` files, the `dest` file is not generated based on `src` files (instead it is a directory).
-
- * [`grunt-spritesmith`](https://npmjs.org/package/grunt-spritesmith) - This task uses multiple `src` images to produce `destImg` and `destCSS` files.  Instead use the [`grunt-spritely`](https://npmjs.org/package/grunt-spritely) task configured with `src` and `dest` files.
