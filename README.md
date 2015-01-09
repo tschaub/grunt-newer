@@ -54,9 +54,6 @@ For example, if you want to run [JSHint](https://npmjs.org/package/grunt-contrib
 ```js
   grunt.initConfig({
     jshint: {
-      options: {
-        jshintrc: '.jshintrc'
-      },
       all: {
         src: 'src/**/*.js'
       }
