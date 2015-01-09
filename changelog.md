@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.1.0
+
+ * Write current time to timestamp file (thanks @malys, see [#69][69])
+
 ## 1.0.0
 
  * Document that grunt-newer works with grunt-spritesmith >= 3.1.0 (thanks @danez, see [#66][66])
@@ -58,3 +62,4 @@
  [61]: https://github.com/tschaub/grunt-newer/pull/61
  [62]: https://github.com/tschaub/grunt-newer/pull/62
  [66]: https://github.com/tschaub/grunt-newer/pull/66
+ [69]: https://github.com/tschaub/grunt-newer/pull/69
