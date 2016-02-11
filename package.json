@@ -36,7 +36,7 @@
     "mock-fs": "2.x"
   },
   "peerDependencies": {
-    "grunt": "~0.4.1"
+    "grunt": ">=0.4.1"
   },
   "keywords": [
     "gruntplugin",
