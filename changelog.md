@@ -1,5 +1,13 @@
 # Change Log
 
+## 1.1.2
+
+ * Update peer dependency for Grunt (thanks @steveoh, see [#91][91])
+
+## 1.1.1
+
+ * Update license identifier (MIT)
+
 ## 1.1.0
 
  * Write current time to timestamp file (thanks @malys, see [#69][69])
@@ -63,3 +71,4 @@
  [62]: https://github.com/tschaub/grunt-newer/pull/62
  [66]: https://github.com/tschaub/grunt-newer/pull/66
  [69]: https://github.com/tschaub/grunt-newer/pull/69
+ [91]: https://github.com/tschaub/grunt-newer/pull/91
