@@ -47,13 +47,26 @@ function createTask(grunt) {
     var args = Array.prototype.slice.call(arguments, 2).join(':');
     var options = this.options({
       cache: path.join(__dirname, '..', '.cache'),
-      override: nullOverride
+      override: nullOverride,
+      tolerance: 0 // allowed difference between src and dst in ms
     });
 
     // support deprecated timestamps option
     if (options.timestamps) {
       grunt.log.warn('DEPRECATED OPTION.  Use the "cache" option instead');
       options.cache = options.timestamps;
+    }
+
+    // Sanity check for the tolerance option
+    if (typeof options.tolerance !== 'number') {
+      grunt.log.warn('The tolerance value must be a number, ignoring current ' +
+      'value');
+      options.tolerance = 0;
+    }
+    if (options.tolerance < 0) {
+      grunt.log.warn('A tolerance value of ' + options.tolerance +
+      ' is invalid');
+      options.tolerance = 0;
     }
 
     var done = this.async();
@@ -97,7 +110,8 @@ function createTask(grunt) {
     }
 
     var files = grunt.task.normalizeMultiTaskFiles(config, targetName);
-    util.filterFilesByTime(files, previous, override, function(e, newerFiles) {
+    util.filterFilesByTime(
+      files, previous, options.tolerance, override, function(e, newerFiles) {
       if (e) {
         return done(e);
       } else if (newerFiles.length === 0) {

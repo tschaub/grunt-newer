@@ -150,6 +150,29 @@ Example use of the `override` option:
   });
 ```
 
+#### <a id="optionstolerance">options.tolerance</a>
+ * type: `number` (milliseconds)
+ * default: `0`
+
+The `newer` tasks compares the file modification times of the source and destination files with millisecond precision.
+On some file systems this causes destination files to always be considered older because of imprecision in the registration of modification times.
+
+If your tasks are always run even though the source files are not modified use the `tolerance` option to compensate for this imprecision.
+
+In most cases setting the option to `1000` milliseconds should be enough. If the file system is very imprecise use a higher value.
+
+Example use of the `tolerance` option:
+
+```js
+  grunt.initConfig({
+    newer: {
+      options: {
+        tolerance: 1000
+      }
+    }
+  });
+```
+
 ## That's it
 
 Please [submit an issue](https://github.com/tschaub/grunt-newer/issues) if you encounter any trouble.  Contributions or suggestions for improvements welcome!
