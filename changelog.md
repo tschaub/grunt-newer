@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.2.0
+
+ * Add `tolerance` option to account for filesystem time precision (thanks @jorrit, see [#94][#94])
+ * Updated dependencies (thanks @jorrit, see [#93][#93])
+
 ## 1.1.2
 
  * Update peer dependency for Grunt (thanks @steveoh, see [#91][91])
@@ -72,3 +77,5 @@
  [66]: https://github.com/tschaub/grunt-newer/pull/66
  [69]: https://github.com/tschaub/grunt-newer/pull/69
  [91]: https://github.com/tschaub/grunt-newer/pull/91
+ [93]: https://github.com/tschaub/grunt-newer/pull/93
+ [94]: https://github.com/tschaub/grunt-newer/pull/94
