@@ -10,7 +10,7 @@
     "url": "https://github.com/tschaub/grunt-newer/issues"
   },
   "dependencies": {
-    "async": "^1.5.2",
+    "async": "^2.1.0",
     "rimraf": "^2.5.2"
   },
   "devDependencies": {
