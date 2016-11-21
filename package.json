@@ -22,7 +22,7 @@
     "grunt-contrib-jshint": "^1.0.0",
     "grunt-contrib-watch": "^1.0.0",
     "mock-fs": "^3.8.0",
-    "tmp": "0.0.28",
+    "tmp": "0.0.31",
     "wrench": "1.5.8"
   },
   "engines": {
