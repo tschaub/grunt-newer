@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.3.0
+
+ * Updated dev dependencies
+
 ## 1.2.0
 
  * Add `tolerance` option to account for filesystem time precision (thanks @jorrit, see [#94][#94])
